@@ -1,0 +1,11 @@
+﻿<div class="card" style="width: fit-content; height: fit-content;">
+    <h3>@DisplayedCard.Name</h3>
+    <p>@DisplayedCard.Text</p>
+    <p>@DisplayedCard.Type.ToString()</p>
+    <p>@DisplayedCard.Element.ToString()</p>
+</div>
+
+@code {
+    [Parameter]
+    public Card DisplayedCard { get; set; } = new CardTypes.Action();
+}

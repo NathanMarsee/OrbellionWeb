@@ -1,19 +1,23 @@
 ﻿@page "/counter"
+@using OrbellionWeb.Components.UIElements
 @rendermode InteractiveServer
 
 <PageTitle>Counter</PageTitle>
 
-<h1>Counter</h1>
+<h1>Cards</h1>
 
-<p role="status">Current count: @currentCount</p>
+<button class="btn btn-primary" @onclick="AddCard">Click me</button>
 
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+@foreach (var card in cardsList)
+{
+    <CardVisual DisplayedCard="card"></CardVisual>
+}
 
 @code {
-    private int currentCount = 0;
+    private List<Card> cardsList = new List<Card>();
 
-    private void IncrementCount()
+    private void AddCard()
     {
-        currentCount++;
+        cardsList.Add(new CardTypes.Action());
     }
 }
