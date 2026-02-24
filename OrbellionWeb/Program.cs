@@ -1,4 +1,4 @@
-using BlazorApp1.Components;
+using OrbellionWeb.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
