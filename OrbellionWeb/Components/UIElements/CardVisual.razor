@@ -1,4 +1,7 @@
-﻿<div class="card" style="width: fit-content; height: fit-content;">
+﻿@using Microsoft.JSInterop
+@inject IJSRuntime JS;
+
+<div class="draggable card" style="width: fit-content; height: fit-content; position: absolute;">
     <h3>@DisplayedCard.Name</h3>
     <p>@DisplayedCard.Text</p>
     <p>@DisplayedCard.Type.ToString()</p>
@@ -8,4 +11,9 @@
 @code {
     [Parameter]
     public Card DisplayedCard { get; set; } = new CardTypes.Action();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JS.InvokeVoidAsync("dragAndDrop", ".draggable");
+    }
 }

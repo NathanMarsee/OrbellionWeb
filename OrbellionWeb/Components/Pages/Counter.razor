@@ -8,11 +8,14 @@
 
 <button class="btn btn-primary" @onclick="AddCard">Click me</button>
 
-@foreach (var card in cardsList)
-{
-    <CardVisual DisplayedCard="card"></CardVisual>
-}
+<div class="main" style="width: 800px; height: 800px; background-color: black;">
 
+    @foreach (var card in cardsList)
+    {
+        <CardVisual DisplayedCard="card"></CardVisual>
+    }
+
+</div>
 @code {
     private List<Card> cardsList = new List<Card>();
 
