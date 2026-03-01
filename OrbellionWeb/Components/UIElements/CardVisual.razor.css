@@ -2,6 +2,7 @@
 }
 textarea {
     resize: none;
+    border: none;
 }
 .card {
     display: grid;
