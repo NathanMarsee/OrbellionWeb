@@ -3,7 +3,7 @@
     [Flags]
     public enum Element
     {
-        None = 0,
+        Basic = 0,
         Fire = 1 << 0,
         Water = 1 << 1,
         Earth = 1 << 2,
@@ -14,17 +14,15 @@
 
     public enum CardType
     {
-        None = 0,
+        Action = 0,
         Move = 1,
-        Item = 2,
-        Action = 3
+        Item = 2
     }
 
     public enum Power
     {
-        None = 0,
-        Weak = 1,
-        Normal = 2,
-        Strong = 3
+        Weak = 0,
+        Normal = 1,
+        Strong = 2
     }
 }

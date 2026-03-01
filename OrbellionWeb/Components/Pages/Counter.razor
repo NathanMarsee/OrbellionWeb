@@ -8,12 +8,14 @@
 
 <button class="btn btn-primary" @onclick="AddCard">Click me</button>
 
-<div class="main" style="width: 800px; height: 800px; background-color: black;">
+<div class="main" style="width: 800px; height: 800px; background-color: lightgray;">
+@foreach (var card in cardsList)
+{
+    <CardVisual DisplayedCard="card"></CardVisual>
+}
 
-    @foreach (var card in cardsList)
-    {
-        <CardVisual DisplayedCard="card"></CardVisual>
-    }
+
+    
 
 </div>
 @code {
@@ -21,6 +23,6 @@
 
     private void AddCard()
     {
-        cardsList.Add(new CardTypes.Action());
+        cardsList.Add(new Card());
     }
 }

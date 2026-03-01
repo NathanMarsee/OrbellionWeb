@@ -11,6 +11,14 @@
                 let y = (parseFloat(event.target.dataset.y) || 0) + event.dy;
 
                 event.target.style.transform = `translate(${x}px, ${y}px)`;
+                event.target.style.order = 1; // Bring the dragged element to the front
+                // Move the other elements behind the dragged element
+                const siblings = event.target.parentElement.children;
+                for (let sibling of siblings) {
+                    if (sibling !== event.target) {
+                        sibling.style.order += 1; // Send siblings back
+                    }
+                }
 
                 event.target.dataset.x = x;
                 event.target.dataset.y = y;

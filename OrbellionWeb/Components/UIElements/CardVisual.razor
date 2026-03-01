@@ -1,16 +1,39 @@
 ﻿@using Microsoft.JSInterop
+@using OrbellionWeb.Shared
 @inject IJSRuntime JS;
 
-<div class="draggable card" style="width: fit-content; height: fit-content; position: absolute;">
-    <h3>@DisplayedCard.Name</h3>
-    <p>@DisplayedCard.Text</p>
-    <p>@DisplayedCard.Type.ToString()</p>
-    <p>@DisplayedCard.Element.ToString()</p>
+<div class="draggable card" style="position: absolute;">
+    <div class="title"><textarea type="text" @bind="@DisplayedCard.Name" placeholder="Card Name" rows="1"/></div>
+    <div class="cardart"><br></div>
+    <div class="typeline">
+        <InputSelect @bind-Value="@DisplayedCard.Element">
+            @foreach (var value in Enum.GetValues(typeof(Element)))
+            {
+                <option value="@value">@value</option>
+            }
+        </InputSelect>
+        <InputSelect @bind-Value="@DisplayedCard.Type">
+            @foreach (var value in Enum.GetValues(typeof(CardType)))
+            {
+                <option value="@value">@value</option>
+            }
+        </InputSelect><br>
+        @if (DisplayedCard.Type == CardType.Move || DisplayedCard.Type == CardType.Item) {
+            <InputSelect @bind-Value="@DisplayedCard.Power">
+                @foreach (var value in Enum.GetValues(typeof(Power)))
+                {
+                    <option value="@value">@value</option>
+                }
+            </InputSelect>
+
+        }
+    </div>
+    <div class="text"><textarea type="text" @bind="@DisplayedCard.Text" placeholder="Card Text" rows="5"/></div>
 </div>
 
 @code {
     [Parameter]
-    public Card DisplayedCard { get; set; } = new CardTypes.Action();
+    public Card DisplayedCard { get; set; } = new Card();
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {

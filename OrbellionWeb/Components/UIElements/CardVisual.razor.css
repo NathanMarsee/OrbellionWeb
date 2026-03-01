@@ -1,13 +1,38 @@
 ﻿body {
 }
-.draggable {
-    width: 25%;
-    min-height: 6.5em;
-    margin: 1rem 0 0 1rem;
-    background-color: #29e;
-    color: white;
-    border-radius: 0.75em;
-    padding: 4%;
-    touch-action: none;
-    user-select: none;
+textarea {
+    resize: none;
+}
+.card {
+    display: grid;
+    grid-template-areas:
+        "title"
+        "cardart"
+        "typeline"
+        "text";
+    grid-template-columns: 1fr;
+    background-color: black;
+    padding: 10px;
+    margin: 10px;
+}
+
+.card div {
+    background-color: white;
+}
+
+.card div.title {
+    grid-area: title;
+}
+
+.card div.cardart {
+    grid-area: cardart;
+    gap: 100px;
+}
+
+.container div.typeline {
+    grid-area: menu;
+}
+
+.container div.text {
+    grid-area: content;
 }
