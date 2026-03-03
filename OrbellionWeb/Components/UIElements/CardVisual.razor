@@ -2,7 +2,7 @@
 @using OrbellionWeb.Shared
 @inject IJSRuntime JS;
 
-<div class="draggable card" style="position: absolute;">
+<div class="draggable card" style="position: absolute;" @ref="cardElement">
     <div class="title"><textarea type="text" @bind="@DisplayedCard.Name" placeholder="Card Name" rows="1"/></div>
     <div class="cardart"><br></div>
     <div class="typeline">
@@ -42,8 +42,17 @@
     [Parameter]
     public Card DisplayedCard { get; set; } = new Card();
 
+    private ElementReference cardElement;
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        // ensure drag behavior is wired (ok to call multiple times)
         await JS.InvokeVoidAsync("dragAndDrop", ".draggable");
+
+        // put this newly-created card on top
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("bringElementToFront", cardElement);
+        }
     }
 }
