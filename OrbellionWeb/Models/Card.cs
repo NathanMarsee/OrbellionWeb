@@ -1,10 +1,12 @@
 ﻿using OrbellionWeb.Shared;
 using System.ComponentModel.DataAnnotations;
+using System;
 
 namespace OrbellionWeb.Models
 {
     public class Card
     {
+        public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public Element Element { get; set; }
         public CardType Type { get; set; }
@@ -14,12 +16,14 @@ namespace OrbellionWeb.Models
 
         public Card()
         {
+            Id = Guid.NewGuid();
             Name = "";
             Text = "";
         }
 
         public Card(string name, Element element, CardType type, Power? power, string? text = null, bool isAce = false)
         {
+            Id = Guid.NewGuid();
             Name = name;
             Element = element;
             Type = type;

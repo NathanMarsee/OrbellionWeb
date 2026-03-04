@@ -1,5 +1,6 @@
 ﻿@page "/counter"
 @using OrbellionWeb.Components.UIElements
+@using OrbellionWeb.Models
 @rendermode InteractiveServer
 
 <PageTitle>Counter</PageTitle>
@@ -9,20 +10,31 @@
 <button class="btn btn-primary" @onclick="AddCard">Click me</button>
 
 <div class="main" style="width: 800px; height: 800px; background-color: lightgray;">
-@foreach (var card in cardsList)
-{
-    <CardVisual DisplayedCard="card"></CardVisual>
-}
-
-
-    
-
+    @foreach (var card in battlefieldCards)
+    {
+        <CardVisual @key="card.Id" DisplayedCard="card" OnDropped="@OnCardDropped"></CardVisual>
+    }
 </div>
+<div class="dropzone" style="width: 800px; height: 200px; background-color: gray;">
+</div>
+
 @code {
-    private List<Card> cardsList = new List<Card>();
+    private List<Card> battlefieldCards = new List<Card>();
+    private List<Card> handCards = new List<Card>();
 
     private void AddCard()
     {
-        cardsList.Add(new Card());
+        battlefieldCards.Add(new Card());
+    }
+
+    private async Task OnCardDropped(Guid cardId)
+    {
+        var card = battlefieldCards.FirstOrDefault(c => c.Id == cardId);
+        if (card != null)
+        {
+            battlefieldCards.Remove(card);
+            handCards.Add(card);
+            await InvokeAsync(StateHasChanged);
+        }
     }
 }

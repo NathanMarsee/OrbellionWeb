@@ -1,8 +1,8 @@
-﻿@using Microsoft.JSInterop
-@using OrbellionWeb.Shared
+﻿@using OrbellionWeb.Shared
+@using Microsoft.JSInterop
 @inject IJSRuntime JS;
 
-<div class="draggable card" style="position: absolute;" @ref="cardElement">
+<div class="draggable card" id="@DisplayedCard.Id.ToString()" style="position: absolute;" @ref="cardElement">
     <div class="title"><textarea type="text" @bind="@DisplayedCard.Name" placeholder="Card Name" rows="1"/></div>
     <div class="cardart"><br></div>
     <div class="typeline">
@@ -42,17 +42,49 @@
     [Parameter]
     public Card DisplayedCard { get; set; } = new Card();
 
+    // Raised when this card is dropped into the dropzone.
+    [Parameter]
+    public EventCallback<Guid> OnDropped { get; set; }
+
     private ElementReference cardElement;
+    private DotNetObjectReference<CardVisual>? dotNetRef;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         // ensure drag behavior is wired (ok to call multiple times)
         await JS.InvokeVoidAsync("dragAndDrop", ".draggable");
+        await JS.InvokeVoidAsync("dropZone", ".dropzone");
 
-        // put this newly-created card on top
+        // register this instance with JS so drops call back here
+        dotNetRef ??= DotNetObjectReference.Create(this);
+        await JS.InvokeVoidAsync("registerDropHandler", cardElement, dotNetRef);
+
         if (firstRender)
         {
             await JS.InvokeVoidAsync("bringElementToFront", cardElement);
         }
+    }
+
+    [JSInvokable]
+    public async Task NotifyDropped(string id)
+    {
+        if (Guid.TryParse(id, out var guid))
+        {
+            await OnDropped.InvokeAsync(guid);
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        try
+        {
+            // unregister the JS callback mapping for this element to avoid stale mappings
+            await JS.InvokeVoidAsync("unregisterDropHandler", cardElement);
+        }
+        catch
+        {
+            // best-effort cleanup; swallow exceptions during dispose
+        }
+        dotNetRef?.Dispose();
     }
 }
