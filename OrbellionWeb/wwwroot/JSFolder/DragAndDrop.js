@@ -18,6 +18,11 @@
                 // Initialize per-element position if missing
                 if (event.target.dataset.x === undefined) event.target.dataset.x = 0;
                 if (event.target.dataset.y === undefined) event.target.dataset.y = 0;
+
+                // clear any previous dropped flag
+                if (event.target.__orbellionDroppedIntoZone) {
+                    delete event.target.__orbellionDroppedIntoZone;
+                }
             },
             move(event) {
                 let x = (parseFloat(event.target.dataset.x) || 0) + event.dx;
@@ -27,6 +32,55 @@
 
                 event.target.dataset.x = x;
                 event.target.dataset.y = y;
+            },
+            // snap back into the .main area on drag end if any edge is hanging outside,
+            // but skip snapping if the element was dropped into a dropzone (to avoid flicker)
+            end(event) {
+                const el = event.target;
+                // If the element was dropped into a dropzone, avoid snapping back (prevents flicker)
+                if (el && el.__orbellionDroppedIntoZone) {
+                    // clear the flag so it doesn't affect future drags
+                    delete el.__orbellionDroppedIntoZone;
+                    return;
+                }
+
+                const main = document.querySelector('.main');
+                if (!main || !el) return;
+
+                // current stored translation
+                let x = parseFloat(el.dataset.x) || 0;
+                let y = parseFloat(el.dataset.y) || 0;
+
+                const elRect = el.getBoundingClientRect();
+                const mainRect = main.getBoundingClientRect();
+
+                // compute required deltas to bring the element fully inside main
+                let dx = 0;
+                let dy = 0;
+
+                if (elRect.left < mainRect.left) {
+                    dx = mainRect.left - elRect.left;
+                }
+                if (elRect.right > mainRect.right) {
+                    dx = mainRect.right - elRect.right;
+                }
+                if (elRect.top < mainRect.top) {
+                    dy = mainRect.top - elRect.top;
+                }
+                if (elRect.bottom > mainRect.bottom) {
+                    dy = mainRect.bottom - elRect.bottom;
+                }
+
+                // if any adjustment required, update translation instantly (no animation)
+                if (dx !== 0 || dy !== 0) {
+                    // ensure no transition so the move is immediate
+                    el.style.transition = 'none';
+                    x += dx;
+                    y += dy;
+                    el.style.transform = `translate(${x}px, ${y}px)`;
+                    el.dataset.x = x;
+                    el.dataset.y = y;
+                }
             }
         },
         modifiers: [
@@ -43,16 +97,30 @@ function dropZone(dropTarget) {
     interact(dropTarget)
         .dropzone({
             ondrop: function (event) {
-                const relatedId = event.relatedTarget.id;
+                const relatedEl = event.relatedTarget;
+
+                // Mark the dragged element as dropped into a dropzone so draggable end listener can skip snap.
+                // Use a short-lived flag; Blazor/DOTNET removal will happen immediately in many cases.
+                if (relatedEl) {
+                    relatedEl.__orbellionDroppedIntoZone = true;
+                    // Clear the flag shortly after to avoid stale state if element isn't removed
+                    setTimeout(() => {
+                        if (relatedEl && relatedEl.__orbellionDroppedIntoZone) {
+                            delete relatedEl.__orbellionDroppedIntoZone;
+                        }
+                    }, 500);
+                }
+
+                const relatedId = relatedEl && relatedEl.id;
                 // If there's a registered callback for this element, invoke it
-                if (window.__orbellionDropCallbacks && window.__orbellionDropCallbacks[relatedId]) {
+                if (relatedId && window.__orbellionDropCallbacks && window.__orbellionDropCallbacks[relatedId]) {
                     try {
                         window.__orbellionDropCallbacks[relatedId].invokeMethodAsync('NotifyDropped', relatedId);
                     } catch (err) {
                         console.error('Error invoking dotnet callback on drop:', err);
                     }
-                } else {
-                    alert(event.relatedTarget.id + ' was dropped into ' + event.target.id)
+                } else if (relatedEl) {
+                    alert(relatedEl.id + ' was dropped into ' + event.target.id);
                 }
             }
         })
