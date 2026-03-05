@@ -2,7 +2,7 @@
 @using Microsoft.JSInterop
 @inject IJSRuntime JS;
 
-<div class="draggable card" id="@DisplayedCard.Id.ToString()" style="position: absolute;" @ref="cardElement">
+<div class="@CardClass" id="@DisplayedCard.Id.ToString()" @ref="cardElement">
     <div class="title"><textarea type="text" @bind="@DisplayedCard.Name" placeholder="Card Name" rows="1"/></div>
     <div class="cardart"><br></div>
     <div class="typeline">
@@ -45,6 +45,9 @@
     // Raised when this card is dropped into the dropzone.
     [Parameter]
     public EventCallback<Guid> OnDropped { get; set; }
+
+    [Parameter]
+    public String CardClass { get; set; } = "card";
 
     private ElementReference cardElement;
     private DotNetObjectReference<CardVisual>? dotNetRef;

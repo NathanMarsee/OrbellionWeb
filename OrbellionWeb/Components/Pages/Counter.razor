@@ -12,10 +12,14 @@
 <div class="main" style="width: 800px; height: 800px; background-color: lightgray;">
     @foreach (var card in battlefieldCards)
     {
-        <CardVisual @key="card.Id" DisplayedCard="card" OnDropped="@OnCardDropped"></CardVisual>
+        <CardVisual @key="card.Id" DisplayedCard="card" CardClass="draggable card" OnDropped="@OnCardDropped"></CardVisual>
     }
 </div>
 <div class="dropzone" style="width: 800px; height: 200px; background-color: gray;">
+    @foreach (var card in handCards)
+    {
+        <CardVisual @key="card.Id" DisplayedCard="card" CardClass="card" OnDropped="@OnCardDropped"></CardVisual>
+    }
 </div>
 
 @code {

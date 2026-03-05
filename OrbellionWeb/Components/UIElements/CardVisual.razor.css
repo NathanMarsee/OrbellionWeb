@@ -4,6 +4,9 @@ textarea {
     resize: none;
     border: none;
 }
+.draggable {
+    position: absolute;
+}
 .card {
     display: grid;
     grid-template-areas:
