@@ -55,7 +55,7 @@
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         // ensure drag behavior is wired (ok to call multiple times)
-        await JS.InvokeVoidAsync("dragAndDrop", ".draggable");
+        await JS.InvokeVoidAsync("dragAndDrop", ".battlefieldCard");
         await JS.InvokeVoidAsync("dropZone", ".dropzone");
 
         // register this instance with JS so drops call back here

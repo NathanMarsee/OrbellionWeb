@@ -20,8 +20,8 @@
                 if (event.target.dataset.y === undefined) event.target.dataset.y = 0;
 
                 // clear any previous dropped flag
-                if (event.target.__orbellionDroppedIntoZone) {
-                    delete event.target.__orbellionDroppedIntoZone;
+                if (event.target.__cardDroppedIntoZone) {
+                    delete event.target.__cardDroppedIntoZone;
                 }
             },
             move(event) {
@@ -38,9 +38,9 @@
             end(event) {
                 const el = event.target;
                 // If the element was dropped into a dropzone, avoid snapping back (prevents flicker)
-                if (el && el.__orbellionDroppedIntoZone) {
+                if (el && el.__cardDroppedIntoZone) {
                     // clear the flag so it doesn't affect future drags
-                    delete el.__orbellionDroppedIntoZone;
+                    delete el.__cardDroppedIntoZone;
                     return;
                 }
 
@@ -102,11 +102,11 @@ function dropZone(dropTarget) {
                 // Mark the dragged element as dropped into a dropzone so draggable end listener can skip snap.
                 // Use a short-lived flag; Blazor/DOTNET removal will happen immediately in many cases.
                 if (relatedEl) {
-                    relatedEl.__orbellionDroppedIntoZone = true;
+                    relatedEl.__cardDroppedIntoZone = true;
                     // Clear the flag shortly after to avoid stale state if element isn't removed
                     setTimeout(() => {
-                        if (relatedEl && relatedEl.__orbellionDroppedIntoZone) {
-                            delete relatedEl.__orbellionDroppedIntoZone;
+                        if (relatedEl && relatedEl.__cardDroppedIntoZone) {
+                            delete relatedEl.__cardDroppedIntoZone;
                         }
                     }, 500);
                 }
