@@ -1,6 +1,6 @@
 ﻿function dragAndDrop(className) {
     // global counter to ensure the most-recently-clicked item is on top
-    window.__orbellionDragZIndex = window.__orbellionDragZIndex || 1000;
+    window.__cardDragZIndex = window.__cardDragZIndex || 1000;
 
     interact(className).draggable({
         listeners: {
@@ -12,8 +12,8 @@
                 }
 
                 // Bring this element to front by incrementing the global z-index counter
-                window.__orbellionDragZIndex += 1;
-                event.target.style.zIndex = window.__orbellionDragZIndex;
+                window.__cardDragZIndex += 1;
+                event.target.style.zIndex = window.__cardDragZIndex;
 
                 // Initialize per-element position if missing
                 if (event.target.dataset.x === undefined) event.target.dataset.x = 0;
@@ -113,9 +113,9 @@ function dropZone(dropTarget) {
 
                 const relatedId = relatedEl && relatedEl.id;
                 // If there's a registered callback for this element, invoke it
-                if (relatedId && window.__orbellionDropCallbacks && window.__orbellionDropCallbacks[relatedId]) {
+                if (relatedId && window.__cardDropCallbacks && window.__cardDropCallbacks[relatedId]) {
                     try {
-                        window.__orbellionDropCallbacks[relatedId].invokeMethodAsync('NotifyDropped', relatedId);
+                        window.__cardDropCallbacks[relatedId].invokeMethodAsync('NotifyDropped', relatedId);
                     } catch (err) {
                         console.error('Error invoking dotnet callback on drop:', err);
                     }
@@ -131,34 +131,34 @@ function dropZone(dropTarget) {
 
 // register a DotNet callback for a specific card element
 function registerDropHandler(el, dotNetRef) {
-    window.__orbellionDropCallbacks = window.__orbellionDropCallbacks || {};
+    window.__cardDropCallbacks = window.__cardDropCallbacks || {};
     if (!el) return;
     // Ensure element has an id so we can map callbacks by id
     if (!el.id) {
         el.id = 'card-' + Math.random().toString(36).substr(2, 9);
     }
-    window.__orbellionDropCallbacks[el.id] = dotNetRef;
+    window.__cardDropCallbacks[el.id] = dotNetRef;
 }
 
 // unregister previously-registered callback for an element
 function unregisterDropHandler(el) {
-    if (!window.__orbellionDropCallbacks) return;
+    if (!window.__cardDropCallbacks) return;
     if (!el) return;
     const id = el.id;
     if (!id) return;
-    delete window.__orbellionDropCallbacks[id];
+    delete window.__cardDropCallbacks[id];
 }
 
 // Call this from Blazor to put a newly-created element on top
 window.bringElementToFront = function (el) {
     if (!el) return;
-    window.__orbellionDragZIndex = window.__orbellionDragZIndex || 1000;
+    window.__cardDragZIndex = window.__cardDragZIndex || 1000;
 
     const computed = window.getComputedStyle(el);
     if (computed.position === 'static') {
         el.style.position = 'relative';
     }
 
-    window.__orbellionDragZIndex += 1;
-    el.style.zIndex = window.__orbellionDragZIndex;
+    window.__cardDragZIndex += 1;
+    el.style.zIndex = window.__cardDragZIndex;
 };
