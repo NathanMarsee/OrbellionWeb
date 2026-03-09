@@ -1,4 +1,4 @@
-﻿function dragAndDrop(className) {
+﻿function dragAndDropBattlefield(className) {
     // global counter to ensure the most-recently-clicked item is on top
     window.__cardDragZIndex = window.__cardDragZIndex || 1000;
 
@@ -44,31 +44,31 @@
                     return;
                 }
 
-                const main = document.querySelector('.main');
-                if (!main || !el) return;
+                const battlefield = document.querySelector('.battlefield');
+                if (!battlefield || !el) return;
 
                 // current stored translation
                 let x = parseFloat(el.dataset.x) || 0;
                 let y = parseFloat(el.dataset.y) || 0;
 
                 const elRect = el.getBoundingClientRect();
-                const mainRect = main.getBoundingClientRect();
+                const battlefieldRect = battlefield.getBoundingClientRect();
 
                 // compute required deltas to bring the element fully inside main
                 let dx = 0;
                 let dy = 0;
 
-                if (elRect.left < mainRect.left) {
-                    dx = mainRect.left - elRect.left;
+                if (elRect.left < battlefieldRect.left) {
+                    dx = battlefieldRect.left - elRect.left;
                 }
-                if (elRect.right > mainRect.right) {
-                    dx = mainRect.right - elRect.right;
+                if (elRect.right > battlefieldRect.right) {
+                    dx = battlefieldRect.right - elRect.right;
                 }
-                if (elRect.top < mainRect.top) {
-                    dy = mainRect.top - elRect.top;
+                if (elRect.top < battlefieldRect.top) {
+                    dy = battlefieldRect.top - elRect.top;
                 }
-                if (elRect.bottom > mainRect.bottom) {
-                    dy = mainRect.bottom - elRect.bottom;
+                if (elRect.bottom > battlefieldRect.bottom) {
+                    dy = battlefieldRect.bottom - elRect.bottom;
                 }
 
                 // if any adjustment required, update translation instantly (no animation)
@@ -93,34 +93,143 @@
     });
 }
 
-function dropZone(dropTarget) {
+function dragAndDropHand(className) {
+    interact(className).draggable({
+        listeners: {
+            move(event) {
+                let x = (parseFloat(event.target.dataset.x) || 0) + event.dx;
+                let y = (parseFloat(event.target.dataset.y) || 0) + event.dy;
+
+                event.target.style.transform = `translate(${x}px, ${y}px)`;
+
+                event.target.dataset.x = x;
+                event.target.dataset.y = y;
+            },
+            // snap back into the .main area on drag end if any edge is hanging outside,
+            // but skip snapping if the element was dropped into a dropzone (to avoid flicker)
+            end(event) {
+                const el = event.target;
+                // If the element was dropped into a dropzone, avoid snapping back (prevents flicker)
+                if (el && el.__cardDroppedIntoZone) {
+                    // clear the flag so it doesn't affect future drags
+                    delete el.__cardDroppedIntoZone;
+                    return;
+                }
+
+                const hand = document.querySelector('.hand');
+                if (!hand || !el) return;
+
+                // current stored translation
+                let x = parseFloat(el.dataset.x) || 0;
+                let y = parseFloat(el.dataset.y) || 0;
+
+                const elRect = el.getBoundingClientRect();
+                const handRect = hand.getBoundingClientRect();
+
+                // compute required deltas to bring the element fully inside main
+                let dx = 0;
+                let dy = 0;
+
+                if (elRect.left < handRect.left) {
+                    dx = handRect.left - elRect.left;
+                }
+                if (elRect.right > handRect.right) {
+                    dx = handRect.right - elRect.right;
+                }
+                if (elRect.top < handRect.top) {
+                    dy = handRect.top - elRect.top;
+                }
+                if (elRect.bottom > handRect.bottom) {
+                    dy = handRect.bottom - elRect.bottom;
+                }
+
+                // if any adjustment required, update translation instantly (no animation)
+                if (dx !== 0 || dy !== 0) {
+                    // ensure no transition so the move is immediate
+                    el.style.transition = 'none';
+                    x += dx;
+                    y += dy;
+                    el.style.transform = `translate(${x}px, ${y}px)`;
+                    el.dataset.x = x;
+                    el.dataset.y = y;
+                }
+            }
+        },
+        modifiers: [
+            interact.modifiers.restrictRect({
+                restriction: '.main',
+                elementRect: { left: 0, right: 1, top: 1, bottom: 1 },
+                endOnly: true
+            })
+        ]
+    });
+}
+
+function dropZoneHand(dropTarget) {
     interact(dropTarget)
         .dropzone({
             ondrop: function (event) {
                 const relatedEl = event.relatedTarget;
-
-                // Mark the dragged element as dropped into a dropzone so draggable end listener can skip snap.
-                // Use a short-lived flag; Blazor/DOTNET removal will happen immediately in many cases.
-                if (relatedEl) {
-                    relatedEl.__cardDroppedIntoZone = true;
-                    // Clear the flag shortly after to avoid stale state if element isn't removed
-                    setTimeout(() => {
-                        if (relatedEl && relatedEl.__cardDroppedIntoZone) {
-                            delete relatedEl.__cardDroppedIntoZone;
-                        }
-                    }, 500);
-                }
-
-                const relatedId = relatedEl && relatedEl.id;
-                // If there's a registered callback for this element, invoke it
-                if (relatedId && window.__cardDropCallbacks && window.__cardDropCallbacks[relatedId]) {
-                    try {
-                        window.__cardDropCallbacks[relatedId].invokeMethodAsync('NotifyDropped', relatedId);
-                    } catch (err) {
-                        console.error('Error invoking dotnet callback on drop:', err);
+                if (relatedEl.classList.contains("battlefieldCard")) {
+                    // Mark the dragged element as dropped into a dropzone so draggable end listener can skip snap.
+                    // Use a short-lived flag; Blazor/DOTNET removal will happen immediately in many cases.
+                    if (relatedEl) {
+                        relatedEl.__cardDroppedIntoZone = true;
+                        // Clear the flag shortly after to avoid stale state if element isn't removed
+                        setTimeout(() => {
+                            if (relatedEl && relatedEl.__cardDroppedIntoZone) {
+                                delete relatedEl.__cardDroppedIntoZone;
+                            }
+                        }, 500);
                     }
-                } else if (relatedEl) {
-                    alert(relatedEl.id + ' was dropped into ' + event.target.id);
+
+                    const relatedId = relatedEl && relatedEl.id;
+                    // If there's a registered callback for this element, invoke it
+                    if (relatedId && window.__cardDropCallbacks && window.__cardDropCallbacks[relatedId]) {
+                        try {
+                            window.__cardDropCallbacks[relatedId].invokeMethodAsync('NotifyDropped', relatedId);
+                        } catch (err) {
+                            console.error('Error invoking dotnet callback on drop:', err);
+                        }
+                    } else if (relatedEl) {
+                        alert(relatedEl.id + ' was dropped into ' + event.target.id);
+                    }
+                }
+            }
+        })
+        .on('dropactivate', function (event) {
+            event.target.classList.add('drop-activated')
+        })
+}
+function dropZoneBattlefield(dropTarget) {
+    interact(dropTarget)
+        .dropzone({
+            ondrop: function (event) {
+                const relatedEl = event.relatedTarget;
+                if (relatedEl.classList.contains("handCard")) {
+                    // Mark the dragged element as dropped into a dropzone so draggable end listener can skip snap.
+                    // Use a short-lived flag; Blazor/DOTNET removal will happen immediately in many cases.
+                    if (relatedEl) {
+                        relatedEl.__cardDroppedIntoZone = true;
+                        // Clear the flag shortly after to avoid stale state if element isn't removed
+                        setTimeout(() => {
+                            if (relatedEl && relatedEl.__cardDroppedIntoZone) {
+                                delete relatedEl.__cardDroppedIntoZone;
+                            }
+                        }, 500);
+                    }
+
+                    const relatedId = relatedEl && relatedEl.id;
+                    // If there's a registered callback for this element, invoke it
+                    if (relatedId && window.__cardDropCallbacks && window.__cardDropCallbacks[relatedId]) {
+                        try {
+                            window.__cardDropCallbacks[relatedId].invokeMethodAsync('NotifyDropped', relatedId);
+                        } catch (err) {
+                            console.error('Error invoking dotnet callback on drop:', err);
+                        }
+                    } else if (relatedEl) {
+                        alert(relatedEl.id + ' was dropped into ' + event.target.id);
+                    }
                 }
             }
         })

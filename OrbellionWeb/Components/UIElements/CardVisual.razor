@@ -55,8 +55,10 @@
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         // ensure drag behavior is wired (ok to call multiple times)
-        await JS.InvokeVoidAsync("dragAndDrop", ".battlefieldCard");
-        await JS.InvokeVoidAsync("dropZone", ".dropzone");
+        await JS.InvokeVoidAsync("dragAndDropBattlefield", ".battlefieldCard");
+        await JS.InvokeVoidAsync("dragAndDropHand", ".handCard");
+        await JS.InvokeVoidAsync("dropZoneHand", ".dropzonehand");
+        await JS.InvokeVoidAsync("dropZoneBattlefield", ".dropzonebattlefield");
 
         // register this instance with JS so drops call back here
         dotNetRef ??= DotNetObjectReference.Create(this);
