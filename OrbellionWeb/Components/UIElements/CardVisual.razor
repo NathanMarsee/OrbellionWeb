@@ -6,13 +6,13 @@
     <div class="title"><textarea type="text" @bind="@DisplayedCard.Name" placeholder="Card Name" rows="1"/></div>
     <div class="cardart"><br></div>
     <div class="typeline">
-        <InputSelect @bind-Value="@DisplayedCard.Element" style="border: none;">
+        <InputSelect class="no-drag" @bind-Value="@DisplayedCard.Element" style="border: none;">
             @foreach (var value in Enum.GetValues(typeof(Element)))
             {
                 <option value="@value">@value</option>
             }
         </InputSelect>
-        <InputSelect @bind-Value="@DisplayedCard.Type" style="border: none;">
+        <InputSelect class="no-drag" @bind-Value="@DisplayedCard.Type" style="border: none;">
             @foreach (var value in Enum.GetValues(typeof(CardType)))
             {
                 <option value="@value">@value</option>
@@ -23,7 +23,7 @@
     <div class="text">
         @if (DisplayedCard.Type == CardType.Move || DisplayedCard.Type == CardType.Item)
         {
-            <InputSelect @bind-Value="@DisplayedCard.Power" style="border: none; font-weight: 700;">
+            <InputSelect class="no-drag" @bind-Value="@DisplayedCard.Power" style="border: none; font-weight: 700;">
                 @foreach (var value in Enum.GetValues(typeof(Power)))
                 {
                     <option value="@value">@value</option>

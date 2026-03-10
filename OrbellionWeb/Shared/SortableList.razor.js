@@ -7,6 +7,8 @@ export function init(id, group, pull, put, sort, handle, filter, component, forc
             put: put
         },
         filter: filter || undefined,
+        // allow native interactions (clicks/focus) on filtered elements (select/input/textarea)
+        preventOnFilter: false,
         sort: sort,
         forceFallback: forceFallback,
         handle: handle || undefined,
