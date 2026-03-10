@@ -67,6 +67,13 @@
         if (firstRender)
         {
             await JS.InvokeVoidAsync("bringElementToFront", cardElement);
+
+            // If this card was just created as the result of a drop, JS stored the drop cursor coords.
+            // Ask JS to apply that stored position to this newly-created element immediately.
+            if (CardClass.Contains("battlefieldCard"))
+            {
+                await JS.InvokeVoidAsync("tryApplyDropPosition", cardElement, DisplayedCard.Id.ToString());
+            }
         }
     }
 

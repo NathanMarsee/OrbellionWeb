@@ -1,25 +1,27 @@
 ﻿@page "/counter"
 @using OrbellionWeb.Components.UIElements
 @using OrbellionWeb.Models
+@using OrbellionWeb.Shared
 @rendermode InteractiveServer
 
 <PageTitle>Counter</PageTitle>
 
 <h1>Cards</h1>
 
-<button class="btn btn-primary" @onclick="AddCard">Click me</button>
+<button class="btn btn-primary" @onclick="AddCard">New Card</button>
 
 <div class="battlefield dropzonebattlefield" style="width: auto; max-width: 80%; height: 800px; background-color: lightgray;">
     @foreach (var card in battlefieldCards)
     {
-        <CardVisual @key="card.Id" DisplayedCard="card" CardClass="battlefieldCard card" OnDropped="@OnBattlefieldCardDropped"></CardVisual>
+        <CardVisual @key="card.Id" DisplayedCard="card" CardClass="battlefieldCard card no-select" OnDropped="@OnBattlefieldCardDropped"></CardVisual>
     }
 </div>
 <div class="hand dropzonehand" style="width: auto; max-width: 80%; min-height: 250px; background-color: gray; display: flex; overflow-x: auto; white-space: nowrap; padding: 10px;">
-    @foreach (var card in handCards)
-    {
-        <CardVisual @key="card.Id" DisplayedCard="card" CardClass="handCard card" OnDropped="@OnHandCardDropped"></CardVisual>
-    }
+    <SortableList Items="handCards" Context="card" ContainerStyle="display:flex; gap:10px; align-items:flex-start;">
+        <SortableItemTemplate>
+            <CardVisual @key="card.Id" DisplayedCard="card" CardClass="handCard card no-select" OnDropped="@OnHandCardDropped"></CardVisual>
+        </SortableItemTemplate>
+    </SortableList>
 </div>
 
 @code {
@@ -28,7 +30,7 @@
 
     private void AddCard()
     {
-        battlefieldCards.Add(new Card());
+        handCards.Add(new Card());
     }
 
     private async Task OnBattlefieldCardDropped(Guid cardId)

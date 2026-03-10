@@ -1,4 +1,11 @@
-﻿function dragAndDropBattlefield(className) {
+﻿// global storage for pending drop positions
+window.__cardDropLocations = window.__cardDropLocations || {};
+
+function clamp(v, a, b) {
+    return Math.min(Math.max(v, a), b);
+}
+
+function dragAndDropBattlefield(className) {
     // global counter to ensure the most-recently-clicked item is on top
     window.__cardDragZIndex = window.__cardDragZIndex || 1000;
 
@@ -97,13 +104,13 @@ function dragAndDropHand(className) {
     interact(className).draggable({
         listeners: {
             move(event) {
-                let x = (parseFloat(event.target.dataset.x) || 0) + event.dx;
+                /*let x = (parseFloat(event.target.dataset.x) || 0) + event.dx;
                 let y = (parseFloat(event.target.dataset.y) || 0) + event.dy;
 
                 event.target.style.transform = `translate(${x}px, ${y}px)`;
 
                 event.target.dataset.x = x;
-                event.target.dataset.y = y;
+                event.target.dataset.y = y;*/
             },
             // snap back into the .main area on drag end if any edge is hanging outside,
             // but skip snapping if the element was dropped into a dropzone (to avoid flicker)
@@ -116,7 +123,7 @@ function dragAndDropHand(className) {
                     return;
                 }
 
-                const hand = document.querySelector('.hand');
+                /*const hand = document.querySelector('.hand');
                 if (!hand || !el) return;
 
                 // current stored translation
@@ -152,7 +159,7 @@ function dragAndDropHand(className) {
                     el.style.transform = `translate(${x}px, ${y}px)`;
                     el.dataset.x = x;
                     el.dataset.y = y;
-                }
+                }*/
             }
         },
         modifiers: [
@@ -183,7 +190,19 @@ function dropZoneHand(dropTarget) {
                         }, 500);
                     }
 
+                    // capture the drop pointer coordinates (try multiple event shapes)
+                    const dragEvent = event.dragEvent || {};
+                    const client = dragEvent.client || {};
+                    const clientX = (client.x !== undefined) ? client.x : (dragEvent.clientX !== undefined ? dragEvent.clientX : (event.clientX || 0));
+                    const clientY = (client.y !== undefined) ? client.y : (dragEvent.clientY !== undefined ? dragEvent.clientY : (event.clientY || 0));
+
                     const relatedId = relatedEl && relatedEl.id;
+                    // store coordinates for the card id so newly-rendered component can pick them up
+                    if (relatedId) {
+                        window.__cardDropLocations = window.__cardDropLocations || {};
+                        window.__cardDropLocations[relatedId] = { clientX: clientX, clientY: clientY, time: Date.now() };
+                    }
+
                     // If there's a registered callback for this element, invoke it
                     if (relatedId && window.__cardDropCallbacks && window.__cardDropCallbacks[relatedId]) {
                         try {
@@ -219,7 +238,19 @@ function dropZoneBattlefield(dropTarget) {
                         }, 500);
                     }
 
+                    // capture the drop pointer coordinates (try multiple event shapes)
+                    const dragEvent = event.dragEvent || {};
+                    const client = dragEvent.client || {};
+                    const clientX = (client.x !== undefined) ? client.x : (dragEvent.clientX !== undefined ? dragEvent.clientX : (event.clientX || 0));
+                    const clientY = (client.y !== undefined) ? client.y : (dragEvent.clientY !== undefined ? dragEvent.clientY : (event.clientY || 0));
+
                     const relatedId = relatedEl && relatedEl.id;
+                    // store coordinates for the card id so newly-rendered component can pick them up
+                    if (relatedId) {
+                        window.__cardDropLocations = window.__cardDropLocations || {};
+                        window.__cardDropLocations[relatedId] = { clientX: clientX, clientY: clientY, time: Date.now() };
+                    }
+
                     // If there's a registered callback for this element, invoke it
                     if (relatedId && window.__cardDropCallbacks && window.__cardDropCallbacks[relatedId]) {
                         try {
@@ -270,4 +301,64 @@ window.bringElementToFront = function (el) {
 
     window.__cardDragZIndex += 1;
     el.style.zIndex = window.__cardDragZIndex;
+};
+
+// Try to apply a previously-stored drop position to a newly-rendered element.
+// Returns true if applied, false otherwise.
+window.tryApplyDropPosition = function (el, id) {
+    if (!el || !id) return false;
+    if (!window.__cardDropLocations || !window.__cardDropLocations[id]) return false;
+
+    try {
+        const loc = window.__cardDropLocations[id];
+        // remove stored location immediately so it doesn't get reused
+        delete window.__cardDropLocations[id];
+
+        // discard very stale locations (2s)
+        if (Date.now() - loc.time > 2000) {
+            return false;
+        }
+
+        const clientX = loc.clientX || 0;
+        const clientY = loc.clientY || 0;
+
+        // find the element's offset parent / containing dropzone -- usually parentElement
+        const container = el.parentElement || document.body;
+        const containerRect = container.getBoundingClientRect();
+
+        // center the element under the cursor
+        let desiredLeft = clientX - containerRect.left - (el.offsetWidth / 2);
+        let desiredTop = clientY - containerRect.top - (el.offsetHeight / 2);
+
+        // clamp to ensure the element fully fits within the container bounds
+        const minLeft = 0;
+        const maxLeft = Math.max(0, containerRect.width - el.offsetWidth);
+        const minTop = 0;
+        const maxTop = Math.max(0, containerRect.height - el.offsetHeight);
+
+        desiredLeft = clamp(desiredLeft, minLeft, maxLeft);
+        desiredTop = clamp(desiredTop, minTop, maxTop);
+
+        // ensure the element has a dataset for future dragging
+        el.dataset.x = desiredLeft;
+        el.dataset.y = desiredTop;
+
+        // ensure element is positioned such that transform works predictably
+        const computed = window.getComputedStyle(el);
+        if (computed.position === 'static') {
+            el.style.position = 'relative';
+        }
+
+        // apply transform immediately (no animation)
+        el.style.transition = 'none';
+        el.style.transform = `translate(${desiredLeft}px, ${desiredTop}px)`;
+
+        // make element visible in case it was rendered hidden
+        el.style.visibility = 'visible';
+
+        return true;
+    } catch (err) {
+        console.error('Error applying stored drop position:', err);
+        return false;
+    }
 };
