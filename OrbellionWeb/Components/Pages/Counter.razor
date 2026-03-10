@@ -1,8 +1,10 @@
 ﻿@page "/counter"
+@using Microsoft.AspNetCore.Authorization
 @using OrbellionWeb.Components.UIElements
 @using OrbellionWeb.Models
 @using OrbellionWeb.Shared
 @rendermode InteractiveServer
+@attribute [Authorize]
 
 <PageTitle>Counter</PageTitle>
 
