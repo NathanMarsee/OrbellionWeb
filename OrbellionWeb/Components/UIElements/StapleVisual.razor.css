@@ -1,0 +1,43 @@
+﻿body {
+}
+
+textarea {
+    resize: none;
+    border: none;
+}
+
+.staple {
+    display: grid;
+    grid-template-areas:
+        "title"
+        "cardart"
+        "typeline"
+        "text";
+    grid-template-columns: 1fr;
+    background-color: black;
+    padding: 8px;
+    margin: 0px;
+    width: 200px;
+    flex-shrink: 0;
+}
+
+.staple div {
+    background-color: white;
+}
+
+.staple div.title {
+    grid-area: title;
+}
+
+.staple div.cardart {
+    grid-area: cardart;
+    gap: 100px;
+}
+
+.container div.typeline {
+    grid-area: menu;
+}
+
+.container div.text {
+    grid-area: content;
+}

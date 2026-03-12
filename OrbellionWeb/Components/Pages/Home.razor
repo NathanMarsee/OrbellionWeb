@@ -26,6 +26,12 @@
 <div>Here you can edit Hellions/Staples/Deck for your character if you are logged in, otherwise anything done here will not be persisted.</div>
 <h1>Hellions</h1>
 <h1>Staples</h1>
+<div class="row">
+    @foreach (var staple in staples)
+    {
+        <StapleVisual @key="staple.Id" DisplayedStaple="staple" StapleClass="staple"/>
+    }
+</div>
 <h1>Deck</h1>
 <button @onclick="NewCard">New Card</button>
 <div class="row scrollable-row">
@@ -61,7 +67,21 @@
             {
                 characterName = currentUser.Name;
                 cards = currentUser.Cards.ToList();
+                if (!currentUser.Hellions.Any())
+                {
+                    currentUser.Hellions.Add(new Hellion());
+                    currentUser.Hellions.Add(new Hellion());
+                    currentUser.Hellions.Add(new Hellion());
+                    context.SaveChanges();
+                }
                 hellions = currentUser.Hellions.ToList();
+                if(!currentUser.Staples.Any())
+                {
+                    currentUser.Staples.Add(new Staple());
+                    currentUser.Staples.Add(new Staple());
+                    currentUser.Staples.Add(new Staple());
+                    context.SaveChanges();
+                }
                 staples = currentUser.Staples.ToList();
             }
         }
