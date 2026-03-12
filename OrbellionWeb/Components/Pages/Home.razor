@@ -1,7 +1,103 @@
 ﻿@page "/"
+@rendermode InteractiveServer
+@inject AuthenticationStateProvider _authenticationStateProvider
+@inject IDbContextFactory<OrbellionWebContext> _contextFactory
+@using Microsoft.AspNetCore.Authorization
+@using System.Security.Claims
+@using Microsoft.EntityFrameworkCore
+@using OrbellionWeb.Components.UIElements
+@using OrbellionWeb.Data
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, and welcome to Orbellion.</h1>
+<AuthorizeView>
+    <Authorized>
+        <h1>Hello @characterName, and welcome to Orbellion.</h1>
+        <InputText @bind-Value="@newCharacterName" placeholder="New Character Name"/>
+        <button @onclick="UpdateCharacterName">Update Character Name</button>
+    </Authorized>
+    <NotAuthorized>
+        <h1>Hello, and welcome to Orbellion.</h1>
+        <p>
+            Please <a href="Account/Login">log in</a> to access your character and the battlefield.
+        </p>
+    </NotAuthorized>
+</AuthorizeView>
+<div>Here you can edit Hellions/Staples/Deck for your character if you are logged in, otherwise anything done here will not be persisted.</div>
+<h1>Hellions</h1>
+<h1>Staples</h1>
+<h1>Deck</h1>
+<button @onclick="NewCard">New Card</button>
+<div class="row scrollable-row">
+    @foreach (var card in cards)
+    {
+        <CardVisual @key="card.Id" DisplayedCard="card" CardClass="card" />
+    }
+</div>
+@code 
+{
+    private string? userId = string.Empty;
+    private List<Card> cards = new List<Card>();
+    private List<Hellion> hellions = new List<Hellion>();
+    private List<Staple> staples = new List<Staple>();
+    private string characterName = string.Empty;
+    private string newCharacterName = string.Empty;
 
-Welcome to your new app.
+    protected override async Task OnInitializedAsync()
+    {   
+        var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        using var context = _contextFactory.CreateDbContext();
+        {
+            var currentUser = context.Users.Where(u => u.Id == userId)
+                                           .Include(u => u.Cards)
+                                           .Include(u => u.Hellions)
+                                           .Include(u => u.Staples).FirstOrDefault();
+
+            if (currentUser != null)
+            {
+                characterName = currentUser.Name;
+                cards = currentUser.Cards.ToList();
+                hellions = currentUser.Hellions.ToList();
+                staples = currentUser.Staples.ToList();
+            }
+        }
+    }
+
+    private void UpdateCharacterName()
+    {
+        using var context = _contextFactory.CreateDbContext();
+        {
+            var currentUser = context.Users.Where(u => u.Id == userId).FirstOrDefault();
+            if (currentUser != null)
+            {
+                currentUser.Name = newCharacterName;
+                context.SaveChanges();
+                characterName = newCharacterName;
+                newCharacterName = string.Empty;
+            }
+        }
+    }
+
+    private void NewCard() {
+        using var context = _contextFactory.CreateDbContext();
+        {
+            var newCard = new Card { Name = "New Card" };
+            var currentUser = context.Users.Where(u => u.Id == userId).FirstOrDefault();
+
+            if (currentUser != null)
+            {
+                currentUser.Cards.Add(newCard);
+                context.SaveChanges();
+            }
+            else
+            {
+                newCard.Id = Guid.NewGuid();
+            }
+            cards.Add(newCard);
+        }
+    }
+}

@@ -8,7 +8,7 @@ using OrbellionWeb.Data;
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("OrbellionWebContext") ?? throw new InvalidOperationException("Connection string 'OrbellionWebContext' not found.");;
 
-builder.Services.AddDbContext<OrbellionWebContext>(options => options.UseSqlite(connectionString));
+builder.Services.AddDbContextFactory<OrbellionWebContext>(options => options.UseSqlite(connectionString));
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
