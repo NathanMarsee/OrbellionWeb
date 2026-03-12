@@ -9,5 +9,21 @@ namespace OrbellionWeb.Models
         public Element Element { get; set; }
         public string? Text { get; set; }
         public bool IsDefeated { get; set; }
+
+        public Hellion()
+        {
+            Id = Guid.NewGuid();
+            Name = "";
+            Text = "";
+        }
+
+        public Hellion(string name, Element element, string? text = null, bool isDefeated = false)
+        {
+            Id = Guid.NewGuid();
+            Name = name;
+            Element = element;
+            Text = text;
+            IsDefeated = isDefeated;
+        }
     }
 }

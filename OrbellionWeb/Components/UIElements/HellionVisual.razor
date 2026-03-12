@@ -1,0 +1,33 @@
+﻿@using OrbellionWeb.Shared
+@using Microsoft.JSInterop
+@inject IJSRuntime JS;
+
+<div class="@HellionClass" id="@DisplayedHellion.Id.ToString()" @ref="hellionElement">
+    <div class="title">
+        <textarea class="name" type="text" @bind="@DisplayedHellion.Name" placeholder="Hellion Name" rows="1" />    
+            <input class="check" type="checkbox" @bind="@DisplayedHellion.IsDefeated" />
+    </div>
+    <div class="art"><br></div>
+    <div class="element">
+        <InputSelect @bind-Value="@DisplayedHellion.Element" style="border: none;">
+            @foreach (var value in Enum.GetValues(typeof(Element)))
+            {
+                <option value="@value">@value</option>
+            }
+        </InputSelect>
+    </div>
+    <div class="text">
+            <textarea type="text" @bind="@DisplayedHellion.Text" placeholder="Rules Text" rows="3"/>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public Hellion DisplayedHellion { get; set; } = new Hellion();
+
+    [Parameter]
+    public String HellionClass { get; set; } = "hellion";
+
+    private ElementReference hellionElement;
+    private DotNetObjectReference<HellionVisual>? dotNetRef;
+}

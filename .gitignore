@@ -481,3 +481,5 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+/OrbellionWeb/OrbellionWebContext.db-shm
+/OrbellionWeb/OrbellionWebContext.db-wal

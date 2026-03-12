@@ -1,0 +1,70 @@
+﻿body {
+}
+textarea {
+    resize: none;
+    border: none;
+}
+.no-select {
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Standard */
+}
+
+.hellion {
+    display: grid;
+    grid-template-areas:
+        "name"
+        "art"
+        "element"
+        "text";
+    grid-template-columns: 1fr;
+    background-color: black;
+    padding: 10px;
+    margin: 0px;
+    width: 280px;
+    flex-shrink: 0;
+    transform-origin: bottom center;
+}
+
+    .hellion.hell-center {
+        /* no extra transform needed, full size */
+        z-index: 2;
+        transform: scale(1.05);
+    }
+
+.hellion.hell-side {
+    transform: scale(0.7);
+    z-index: 1;
+    /* scale shrinks the element but keeps its layout footprint the same size,
+    so pull the sides inward with negative margin */
+    margin-left: -42px;
+    margin-right: -42px;
+}
+
+.hellion div {
+    background-color: white;
+}
+
+.hellion div.title {
+    grid-area: name;
+}
+
+.hellion .name {
+    width: 230px;
+}
+
+.hellion .check {
+    width: 20px;
+    height: 20px;
+}
+
+.hellion div.art {
+    grid-area: art;
+    gap: 100px;
+}
+
+.text textarea {
+    grid-area: text;
+    width: 260px;
+}

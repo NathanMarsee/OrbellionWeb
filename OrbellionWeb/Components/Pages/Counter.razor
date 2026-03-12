@@ -12,11 +12,20 @@
 
 <button class="btn btn-primary" @onclick="AddCard">New Card</button>
 
-<div class="battlefield dropzonebattlefield" style="width: auto; max-width: 80%; height: 800px; background-color: lightgray;">
+<div class="battlefield dropzonebattlefield" style="width: auto; max-width: 80%; height: 800px; position: relative; background-color: lightgray;">
     @foreach (var card in battlefieldCards)
     {
         <CardVisual @key="card.Id" DisplayedCard="card" CardClass="battlefieldCard card no-select" OnDropped="@OnBattlefieldCardDropped"></CardVisual>
     }
+    <div style="position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); display: flex; flex-direction: row; align-items: flex-end; gap: 0;">
+        <div @onclick="() => SwapWithCenter(1)">
+            <HellionVisual @key="hellions[1].Id" DisplayedHellion="hellions[1]" HellionClass="hellion hell-side"></HellionVisual>
+        </div>
+        <HellionVisual @key="hellions[0].Id" DisplayedHellion="hellions[0]" HellionClass="hellion hell-center"></HellionVisual>
+        <div @onclick="() => SwapWithCenter(2)">
+            <HellionVisual @key="hellions[2].Id" DisplayedHellion="hellions[2]" HellionClass="hellion hell-side"></HellionVisual>
+        </div>
+    </div>
 </div>
 <div class="hand dropzonehand" style="width: auto; max-width: 80%; min-height: 250px; background-color: gray; display: flex; overflow-x: auto; white-space: nowrap; padding: 10px;">
     <SortableList Items="handCards" Context="card" OnUpdate="SortList" Filter="select, input, textarea, option, .no-drag" ContainerStyle="display:flex; gap:10px; align-items:flex-start;">
@@ -29,11 +38,31 @@
 @code {
     private List<Card> battlefieldCards = new List<Card>();
     private List<Card> handCards = new List<Card>();
+    private List<Hellion> hellions = new List<Hellion>
+    {
+        new Hellion(),
+        new Hellion(),
+        new Hellion(),
+    };
 
     private void AddCard()
     {
         handCards.Add(new Card());
     }
+    private void SwapWithCenter(int sideIndex)
+    {
+        if (!hellions[sideIndex].IsDefeated)
+        {
+            var center = hellions[0];
+            hellions[0] = hellions[sideIndex];
+            hellions[sideIndex] = center;
+        }
+    }
+
+    /*private void AddHellion()
+    {
+        hellions.Add(new Hellion());
+    }*/
 
     private async Task OnBattlefieldCardDropped(Guid cardId)
     {
