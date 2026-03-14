@@ -1,18 +1,22 @@
-﻿@using OrbellionWeb.Shared
+﻿@using Microsoft.EntityFrameworkCore
+@using OrbellionWeb.Data
+@using OrbellionWeb.Shared
 @using Microsoft.JSInterop
+@implements IAsyncDisposable;
 @inject IJSRuntime JS;
+@inject IDbContextFactory<OrbellionWebContext> _contextFactory
 
 <div class="@CardClass" id="@DisplayedCard.Id.ToString()" @ref="cardElement">
-    <div class="title"><textarea type="text" @bind="@DisplayedCard.Name" placeholder="Card Name" rows="1"/></div>
+    <div class="title"><textarea type="text" @bind="@DisplayedCard.Name" @bind:after="SaveCard" placeholder="Card Name" rows="1"/></div>
     <div class="cardart"><br></div>
     <div class="typeline">
-        <InputSelect class="no-drag" @bind-Value="@DisplayedCard.Element" style="border: none;">
+        <InputSelect class="no-drag" @bind-Value="@DisplayedCard.Element" style="border: none;" @onchange="SaveCard">
             @foreach (var value in Enum.GetValues(typeof(Element)))
             {
                 <option value="@value">@value</option>
             }
         </InputSelect>
-        <InputSelect class="no-drag" @bind-Value="@DisplayedCard.Type" style="border: none;">
+        <InputSelect class="no-drag" @bind-Value="@DisplayedCard.Type" style="border: none;" @onchange="SaveCard">
             @foreach (var value in Enum.GetValues(typeof(CardType)))
             {
                 <option value="@value">@value</option>
@@ -23,17 +27,17 @@
     <div class="text">
         @if (DisplayedCard.Type == CardType.Move || DisplayedCard.Type == CardType.Item)
         {
-            <InputSelect class="no-drag" @bind-Value="@DisplayedCard.Power" style="border: none; font-weight: 700;">
+            <InputSelect class="no-drag" @bind-Value="@DisplayedCard.Power" style="border: none; font-weight: 700;" @onchange="SaveCard">
                 @foreach (var value in Enum.GetValues(typeof(Power)))
                 {
                     <option value="@value">@value</option>
                 }
             </InputSelect>
             <br>
-            <textarea type="text" @bind="@DisplayedCard.Text" placeholder="Card Text" rows="4"/>
+            <textarea type="text" @bind="@DisplayedCard.Text" @bind:after="SaveCard" placeholder="Card Text" rows="4" />
         }
         else {
-            <textarea type="text" @bind="@DisplayedCard.Text" placeholder="Card Text" rows="5"/>
+            <textarea type="text" @bind="@DisplayedCard.Text" @bind:after="SaveCard" placeholder="Card Text" rows="5" />
         }
     </div>
 </div>
@@ -98,5 +102,25 @@
             // best-effort cleanup; swallow exceptions during dispose
         }
         dotNetRef?.Dispose();
+    }
+
+    private void SaveCard()
+    {
+        if (DisplayedCard.IsDirty)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            {
+                var card = context.Users.SelectMany(u => u.Cards).FirstOrDefault(c => c.Id == DisplayedCard.Id);
+                if (card != null)
+                {
+                    card.Name = DisplayedCard.Name;
+                    card.Element = DisplayedCard.Element;
+                    card.Type = DisplayedCard.Type;
+                    card.Power = DisplayedCard.Power;
+                    card.Text = DisplayedCard.Text;
+                }
+                context.SaveChanges();
+            }
+        }
     }
 }

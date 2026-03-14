@@ -26,6 +26,8 @@
 <div>Here you can edit Hellions/Staples/Deck for your character if you are logged in, otherwise anything done here will not be persisted.</div>
 <h1>Hellions</h1>
 <h1>Staples</h1>
+<button @onclick="AddStaple">Add Staple</button>
+<div style="font-style: italic">(You can increase your number of staples through character advancements when leveling up. The maximum is 5)</div>
 <div class="row">
     @foreach (var staple in staples)
     {
@@ -37,7 +39,7 @@
 <div class="row scrollable-row">
     @foreach (var card in cards)
     {
-        <CardVisual @key="card.Id" DisplayedCard="card" CardClass="card" />
+        <CardVisual @key="card.Id" DisplayedCard="card" CardClass="card"/>
     }
 </div>
 @code 
@@ -118,6 +120,27 @@
                 newCard.Id = Guid.NewGuid();
             }
             cards.Add(newCard);
+        }
+    }
+
+    private void AddStaple() {
+        using var context = _contextFactory.CreateDbContext();
+        {
+            if (staples.Count < 5)
+            {
+                var newStaple = new Staple { Name = "New Staple" };
+                var currentUser = context.Users.Where(u => u.Id == userId).FirstOrDefault();
+                if (currentUser != null)
+                {
+                    currentUser.Staples.Add(newStaple);
+                    context.SaveChanges();
+                }
+                else
+                {
+                    newStaple.Id = Guid.NewGuid();
+                }
+                staples.Add(newStaple);
+            }
         }
     }
 }
