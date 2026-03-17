@@ -27,21 +27,6 @@ textarea {
     transform-origin: bottom center;
 }
 
-    .hellion.hell-center {
-        /* no extra transform needed, full size */
-        z-index: 2;
-        transform: scale(1.05);
-    }
-
-.hellion.hell-side {
-    transform: scale(0.7);
-    z-index: 1;
-    /* scale shrinks the element but keeps its layout footprint the same size,
-    so pull the sides inward with negative margin */
-    margin-left: -42px;
-    margin-right: -42px;
-}
-
 .hellion div {
     background-color: white;
 }

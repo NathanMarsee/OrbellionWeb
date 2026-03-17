@@ -17,18 +17,13 @@
     {
         <CardVisual @key="card.Id" DisplayedCard="card" CardClass="battlefieldCard card no-select" OnDropped="@OnBattlefieldCardDropped"></CardVisual>
     }
-    <div style="position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); display: flex; flex-direction: row; align-items: flex-end; gap: 0;">
-        <div @onclick="() => SwapWithCenter(1)">
-            <HellionVisual @key="hellions[1].Id" DisplayedHellion="hellions[1]" HellionClass="hellion hell-side"></HellionVisual>
-        </div>
-        <HellionVisual @key="hellions[0].Id" DisplayedHellion="hellions[0]" HellionClass="hellion hell-center"></HellionVisual>
-        <div @onclick="() => SwapWithCenter(2)">
-            <HellionVisual @key="hellions[2].Id" DisplayedHellion="hellions[2]" HellionClass="hellion hell-side"></HellionVisual>
-        </div>
-    </div>
+    @foreach (var hellion in hellions)
+    {
+        <HellionVisual @key="hellion.Id" DisplayedHellion="hellion"></HellionVisual>
+    }
 </div>
 <div class="hand dropzonehand" style="width: auto; max-width: 80%; min-height: 250px; background-color: gray; display: flex; overflow-x: auto; white-space: nowrap; padding: 10px;">
-    <SortableList Items="handCards" Context="card" OnUpdate="SortList" Filter="select, input, textarea, option, .no-drag" ContainerStyle="display:flex; gap:10px; align-items:flex-start;">
+    <SortableList Items="handCards" Context="card" OnUpdate="SortList" Filter=".no-drag" ContainerStyle="display:flex; gap:10px; align-items:flex-start;">
         <SortableItemTemplate>
             <CardVisual @key="card.Id" DisplayedCard="card" CardClass="handCard card no-select" OnDropped="@OnHandCardDropped"></CardVisual>
         </SortableItemTemplate>
