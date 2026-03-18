@@ -47,15 +47,6 @@
     {
         handCards.Add(new Card());
     }
-    private void SwapWithCenter(int sideIndex)
-    {
-        if (!hellions[sideIndex].IsDefeated)
-        {
-            var center = hellions[0];
-            hellions[0] = hellions[sideIndex];
-            hellions[sideIndex] = center;
-        }
-    }
 
     /*private void AddHellion()
     {
