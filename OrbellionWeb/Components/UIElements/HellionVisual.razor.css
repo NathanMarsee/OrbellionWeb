@@ -1,0 +1,55 @@
+﻿body {
+}
+textarea {
+    resize: none;
+    border: none;
+}
+.no-select {
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Standard */
+}
+
+.hellion {
+    display: grid;
+    grid-template-areas:
+        "name"
+        "art"
+        "element"
+        "text";
+    grid-template-columns: 1fr;
+    background-color: black;
+    padding: 10px;
+    margin: 0px;
+    width: 280px;
+    flex-shrink: 0;
+    transform-origin: bottom center;
+}
+
+.hellion div {
+    background-color: white;
+}
+
+.hellion div.title {
+    grid-area: name;
+}
+
+.hellion .name {
+    width: 230px;
+}
+
+.hellion .check {
+    width: 20px;
+    height: 20px;
+}
+
+.hellion div.art {
+    grid-area: art;
+    gap: 100px;
+}
+
+.text textarea {
+    grid-area: text;
+    width: 260px;
+}

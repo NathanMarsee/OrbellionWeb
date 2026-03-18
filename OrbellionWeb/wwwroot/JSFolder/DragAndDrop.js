@@ -103,15 +103,6 @@ function dragAndDropBattlefield(className) {
 function dragAndDropHand(className) {
     interact(className).draggable({
         listeners: {
-            move(event) {
-                /*let x = (parseFloat(event.target.dataset.x) || 0) + event.dx;
-                let y = (parseFloat(event.target.dataset.y) || 0) + event.dy;
-
-                event.target.style.transform = `translate(${x}px, ${y}px)`;
-
-                event.target.dataset.x = x;
-                event.target.dataset.y = y;*/
-            },
             // snap back into the .main area on drag end if any edge is hanging outside,
             // but skip snapping if the element was dropped into a dropzone (to avoid flicker)
             end(event) {
@@ -122,53 +113,8 @@ function dragAndDropHand(className) {
                     delete el.__cardDroppedIntoZone;
                     return;
                 }
-
-                /*const hand = document.querySelector('.hand');
-                if (!hand || !el) return;
-
-                // current stored translation
-                let x = parseFloat(el.dataset.x) || 0;
-                let y = parseFloat(el.dataset.y) || 0;
-
-                const elRect = el.getBoundingClientRect();
-                const handRect = hand.getBoundingClientRect();
-
-                // compute required deltas to bring the element fully inside main
-                let dx = 0;
-                let dy = 0;
-
-                if (elRect.left < handRect.left) {
-                    dx = handRect.left - elRect.left;
-                }
-                if (elRect.right > handRect.right) {
-                    dx = handRect.right - elRect.right;
-                }
-                if (elRect.top < handRect.top) {
-                    dy = handRect.top - elRect.top;
-                }
-                if (elRect.bottom > handRect.bottom) {
-                    dy = handRect.bottom - elRect.bottom;
-                }
-
-                // if any adjustment required, update translation instantly (no animation)
-                if (dx !== 0 || dy !== 0) {
-                    // ensure no transition so the move is immediate
-                    el.style.transition = 'none';
-                    x += dx;
-                    y += dy;
-                    el.style.transform = `translate(${x}px, ${y}px)`;
-                    el.dataset.x = x;
-                    el.dataset.y = y;
-                }*/
             }
-        },
-        modifiers: [
-            interact.modifiers.restrictRect({
-                restriction: '.main',
-                elementRect: { left: 0, right: 1, top: 1, bottom: 1 },
-                endOnly: true
-            })
-        ]
+        }
     });
 }
 
