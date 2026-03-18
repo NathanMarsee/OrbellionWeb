@@ -1,9 +1,13 @@
-﻿@using OrbellionWeb.Shared
+﻿@using Microsoft.EntityFrameworkCore
+@using Microsoft.EntityFrameworkCore.Internal
+@using OrbellionWeb.Data
+@using OrbellionWeb.Shared
+@inject IDbContextFactory<OrbellionWebContext> _contextFactory
 
 <div class="staple">
-    <div class="title"><textarea type="text" @bind="@DisplayedStaple.Name" placeholder="Staple Name" rows="1" /></div>
+    <div class="title"><textarea type="text" @bind="@DisplayedStaple.Name" @bind:after="SaveStaple" placeholder="Staple Name" rows="1" /></div>
     <div class="typeline">
-        <InputSelect class="no-drag" @bind-Value="@DisplayedStaple.Element" style="border: none;">
+        <InputSelect class="no-drag" @bind-Value="@DisplayedStaple.Element" @bind-Value:after="SaveStaple" style="border: none;">
             @foreach (var value in Enum.GetValues(typeof(Element)))
             {
                 <option value="@value">@value</option>
@@ -21,5 +25,24 @@
 
     [Parameter]
     public string StapleClass { get; set; } = "staple";
+
+    private void SaveStaple()
+    {
+        //look at rewriting this in the DbContext class
+        if (DisplayedStaple.IsDirty)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            {
+                var staple = context.Users.Include(u => u.Staples).SelectMany(u => u.Staples).FirstOrDefault(s => s.Id == DisplayedStaple.Id);
+                if (staple != null)
+                {
+                    staple.Name = DisplayedStaple.Name;
+                    staple.Element = DisplayedStaple.Element;
+                    staple.Text = DisplayedStaple.Text;
+                }
+                context.SaveChanges();
+            }
+        }
+    }
 }
 

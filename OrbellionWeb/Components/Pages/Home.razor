@@ -25,6 +25,12 @@
 </AuthorizeView>
 <div>Here you can edit Hellions/Staples/Deck for your character if you are logged in, otherwise anything done here will not be persisted.</div>
 <h1>Hellions</h1>
+<div class="row">
+    @foreach (var hellion in hellions)
+    {
+        <HellionVisual @key="hellion.Id" DisplayedHellion="hellion"/>
+    }
+</div>
 <h1>Staples</h1>
 <button @onclick="AddStaple">Add Staple</button>
 <div style="font-style: italic">(You can increase your number of staples through character advancements when leveling up. The maximum is 5)</div>
