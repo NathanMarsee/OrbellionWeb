@@ -22,12 +22,15 @@
         <HellionVisual @key="hellion.Id" DisplayedHellion="hellion"></HellionVisual>
     }
 </div>
-<div class="hand dropzonehand" style="width: auto; max-width: 80%; min-height: 250px; background-color: gray; display: flex; overflow-x: auto; white-space: nowrap; padding: 10px;">
-    <SortableList Items="handCards" Context="card" OnUpdate="SortList" Filter=".no-drag" ContainerStyle="display:flex; gap:10px; align-items:flex-start;">
-        <SortableItemTemplate>
-            <CardVisual @key="card.Id" DisplayedCard="card" CardClass="handCard card no-select" OnDropped="@OnHandCardDropped"></CardVisual>
-        </SortableItemTemplate>
-    </SortableList>
+<div class="lower-section" style="width: auto; max-width: 80%; display: flex;">
+    <div class="deck" style="width: 200px; min-width: 200px; min-height: 255px; background-color: darkgray; display: inline-block; overflow-x: auto; white-space: nowrap; padding: 10px;"></div>
+    <div class="hand dropzonehand" style="width: 100%; min-height: 255px; background-color: gray; display: inline-block; overflow-x: auto; white-space: nowrap; padding: 10px;">
+        <SortableList Items="handCards" Context="card" OnUpdate="SortList" Filter=".no-drag" ContainerStyle="display:flex; gap:10px; align-items:flex-start;">
+            <SortableItemTemplate>
+                <CardVisual @key="card.Id" DisplayedCard="card" CardClass="handCard card no-select" OnDropped="@OnHandCardDropped"></CardVisual>
+            </SortableItemTemplate>
+        </SortableList>
+    </div>
 </div>
 
 @code {
