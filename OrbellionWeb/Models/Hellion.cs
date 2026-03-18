@@ -1,22 +1,54 @@
 ﻿using OrbellionWeb.Shared;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Xml.Linq;
 
 namespace OrbellionWeb.Models
 {
     public class Hellion
     {
         public Guid Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public Element Element { get; set; }
-        public string? Text { get; set; }
-        public bool IsDefeated { get; set; }
-
-        public Hellion(string name, Element element, string? text = null, bool isDefeated = false)
+        private string _name = string.Empty;
+        public string Name
         {
-            Id = Guid.NewGuid();
-            Name = name;
-            Element = element;
-            Text = text;
-            IsDefeated = isDefeated;
+            get
+            {
+                return _name;
+            }
+            set
+            {
+                this.IsDirty = value != _name;
+                _name = value;
+            }
         }
+        private Element _element;
+        public Element Element
+        {
+            get
+            {
+                return _element;
+            }
+            set
+            {
+                this.IsDirty = value != _element;
+                _element = value;
+            }
+        }
+        private string _text = string.Empty;
+        public string Text
+        {
+            get
+            {
+                return _text;
+            }
+            set
+            {
+                this.IsDirty = value != _text;
+                _text = value;
+            }
+        }
+        [NotMapped]
+        public bool IsDefeated { get; set; }
+        [NotMapped]
+        public bool IsDirty { get; set; }
     }
 }
