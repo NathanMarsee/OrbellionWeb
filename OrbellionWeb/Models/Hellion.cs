@@ -10,13 +10,6 @@ namespace OrbellionWeb.Models
         public string? Text { get; set; }
         public bool IsDefeated { get; set; }
 
-        public Hellion()
-        {
-            Id = Guid.NewGuid();
-            Name = "";
-            Text = "";
-        }
-
         public Hellion(string name, Element element, string? text = null, bool isDefeated = false)
         {
             Id = Guid.NewGuid();
