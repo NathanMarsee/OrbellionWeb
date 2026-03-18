@@ -8,9 +8,10 @@
     <main>
         <AuthorizeView>
             <Authorized>
-                <form class="top-row px-4" action="/Account/Logout" method="post">
+                <form class="top-row px-4" method="post" action="/Account/Logout" enctype="multipart/form-data">
                     <AntiforgeryToken />
-                    <a class="btn btn-primary">Logout</a>
+                    <input type="hidden" name="returnUrl" value=""/>
+                    <button type="submit" class="nav-link btn btn-link">Logout</button>
                 </form>
             </Authorized>
             <NotAuthorized>

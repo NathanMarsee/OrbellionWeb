@@ -1,0 +1,25 @@
+﻿@using OrbellionWeb.Shared
+
+<div class="staple">
+    <div class="title"><textarea type="text" @bind="@DisplayedStaple.Name" placeholder="Staple Name" rows="1" /></div>
+    <div class="typeline">
+        <InputSelect class="no-drag" @bind-Value="@DisplayedStaple.Element" style="border: none;">
+            @foreach (var value in Enum.GetValues(typeof(Element)))
+            {
+                <option value="@value">@value</option>
+            }
+        </InputSelect>
+    </div>
+    <div class="text">
+        <textarea type="text" @bind="@DisplayedStaple.Text" placeholder="Staple Text" rows="2" />
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public Staple DisplayedStaple { get; set; } = new Staple();
+
+    [Parameter]
+    public string StapleClass { get; set; } = "staple";
+}
+

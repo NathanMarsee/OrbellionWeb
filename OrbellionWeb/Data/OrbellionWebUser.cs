@@ -7,8 +7,8 @@ namespace OrbellionWeb.Data
     public class OrbellionWebUser : IdentityUser
     {
         public string Name { get; set; } = string.Empty;
-        public IEnumerable<Card> Cards { get; set; } = Enumerable.Empty<Card>();
-        public IEnumerable<Staple> Stapes { get; set; } = Enumerable.Empty<Staple>();
-        public IEnumerable<Hellion> Hellions { get; set; } = Enumerable.Empty<Hellion>();
+        public ICollection<Card> Cards { get; set; } = new List<Card>();
+        public ICollection<Staple> Staples { get; set; } = new List<Staple>();
+        public ICollection<Hellion> Hellions { get; set; } = new List<Hellion>();
     }
 }
