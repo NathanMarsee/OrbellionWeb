@@ -1,0 +1,20 @@
+﻿body {
+}
+
+.dropzonetopdeck {
+    display: flex;
+    border: solid;
+    box-sizing: border-box;
+    width: 50%;
+    justify-content: center;
+    align-items: center
+}
+
+.dropzonebottomdeck {
+    display: flex;
+    border: solid;
+    box-sizing: border-box;
+    width: 50%;
+    justify-content: center;
+    align-items: center
+}
