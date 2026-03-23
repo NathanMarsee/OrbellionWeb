@@ -11,6 +11,7 @@
 <h1>Cards</h1>
 
 <button class="btn btn-primary" @onclick="AddCard">New Card</button>
+<button class="btn btn-primary" @onclick="AddToken">New Token</button>
 
 <div class="battlefield dropzonebattlefield" style="width: auto; max-width: 80%; height: 800px; position: relative; background-color: lightgray;">
     @foreach (var card in battlefieldCards)
@@ -20,6 +21,10 @@
     @foreach (var hellion in hellions)
     {
         <HellionVisual @key="hellion.Id" DisplayedHellion="hellion"></HellionVisual>
+    }
+    @foreach (var token in tokens)
+    {
+        <TokenVisual @key="token.Id" DisplayedToken="token"></TokenVisual>
     }
 </div>
 <div class="lower-section" style="width: auto; max-width: 80%; display: flex;">
@@ -37,16 +42,17 @@
     private List<Card> battlefieldCards = new List<Card>();
     private List<Card> handCards = new List<Card>();
     private List<Hellion> hellions = new List<Hellion>();
+    private List<Token> tokens = new List<Token>();
 
     private void AddCard()
     {
         handCards.Add(new Card());
     }
 
-    /*private void AddHellion()
+    private void AddToken()
     {
-        hellions.Add(new Hellion());
-    }*/
+        tokens.Add(new Token());
+    }
 
     private async Task OnBattlefieldCardDropped(Guid cardId)
     {
