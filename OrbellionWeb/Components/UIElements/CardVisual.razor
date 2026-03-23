@@ -47,7 +47,7 @@
 
     // Raised when this card is dropped into the dropzone.
     [Parameter]
-    public EventCallback<Guid> OnDropped { get; set; }
+    public EventCallback<(Guid, string)> OnDropped { get; set; }
 
     [Parameter]
     public string CardClass { get; set; } = "card";
@@ -61,7 +61,7 @@
         await JS.InvokeVoidAsync("dragAndDropBattlefield", ".battlefieldCard");
         await JS.InvokeVoidAsync("dragAndDropHand", ".handCard");
         await JS.InvokeVoidAsync("dropZoneHand", ".dropzonehand");
-        await JS.InvokeVoidAsync("dropZoneBattlefield", ".dropzonebattlefield");
+        await JS.InvokeVoidAsync("dropZoneGeneric", ".dropzone");
 
         // register this instance with JS so drops call back here
         dotNetRef ??= DotNetObjectReference.Create(this);
@@ -81,11 +81,11 @@
     }
 
     [JSInvokable]
-    public async Task NotifyDropped(string id)
+    public async Task NotifyDropped(string id, string toId)
     {
         if (Guid.TryParse(id, out var guid))
         {
-            await OnDropped.InvokeAsync(guid);
+            await OnDropped.InvokeAsync((guid, toId));
         }
     }
 
