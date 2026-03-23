@@ -77,6 +77,7 @@ else
     private List<Hellion> hellions = new List<Hellion>();
     private bool inBattle = false;
     private bool Searching = false;
+    private bool noSort = false;
 
     private void AddCard()
     {
@@ -131,6 +132,7 @@ else
         var card = handCards.FirstOrDefault(c => c.Id == t.cardId);
         if (card != null)
         {
+            noSort = true;
             handCards.Remove(card);
 
             switch (t.target)
@@ -161,9 +163,16 @@ else
 
     private async Task SortList((int oldIndex, int newIndex) args)
     {
-        var card = handCards[args.oldIndex];
-        handCards.RemoveAt(args.oldIndex);
-        handCards.Insert(args.newIndex, card);
-        await InvokeAsync(StateHasChanged);
+        if(!noSort)
+        {
+            var card = handCards[args.oldIndex];
+            handCards.RemoveAt(args.oldIndex);
+            handCards.Insert(args.newIndex, card);
+            await InvokeAsync(StateHasChanged);
+        }
+        else
+        {
+            noSort = false;
+        }
     }
 }
