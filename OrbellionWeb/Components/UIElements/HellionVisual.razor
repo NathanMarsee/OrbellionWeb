@@ -1,15 +1,18 @@
-﻿@using OrbellionWeb.Shared
+﻿@using Microsoft.EntityFrameworkCore
+@using OrbellionWeb.Data
+@using OrbellionWeb.Shared
+@inject IDbContextFactory<OrbellionWebContext> _contextFactory
 @using Microsoft.JSInterop
 @inject IJSRuntime JS;
 
 <div class="hellion card" id="@DisplayedHellion.Id.ToString()" @ref="hellionElement">
     <div class="title">
-        <textarea class="name" type="text" @bind="@DisplayedHellion.Name" placeholder="Hellion Name" rows="1" />    
+        <textarea class="name" type="text" @bind="@DisplayedHellion.Name" @bind:after="SaveHellion" placeholder="Hellion Name" rows="1" />    
             <input class="check" type="checkbox" @bind="@DisplayedHellion.IsDefeated" />
     </div>
     <div class="art"><br></div>
     <div class="element">
-        <InputSelect @bind-Value="@DisplayedHellion.Element" style="border: none;">
+        <InputSelect @bind-Value="@DisplayedHellion.Element" @bind-Value:after="SaveHellion" style="border: none;">
             @foreach (var value in Enum.GetValues(typeof(Element)))
             {
                 <option value="@value">@value</option>
@@ -40,6 +43,25 @@
         if (firstRender)
         {
             await JS.InvokeVoidAsync("bringElementToFront", hellionElement);
+        }
+    }
+
+    private void SaveHellion()
+    {
+        //look at rewriting this in the DbContext class
+        if (DisplayedHellion.IsDirty)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            {
+                var hellion = context.Users.Include(u => u.Hellions).SelectMany(u => u.Hellions).FirstOrDefault(h => h.Id == DisplayedHellion.Id);
+                if (hellion != null)
+                {
+                    hellion.Name = DisplayedHellion.Name;
+                    hellion.Element = DisplayedHellion.Element;
+                    hellion.Text = DisplayedHellion.Text;
+                }
+                context.SaveChanges();
+            }
         }
     }
 }

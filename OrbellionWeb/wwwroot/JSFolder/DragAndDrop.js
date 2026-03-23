@@ -166,7 +166,7 @@ function dropZoneHand(dropTarget) {
             event.target.classList.add('drop-activated')
         })
 }
-function dropZoneBattlefield(dropTarget) {
+function dropZoneGeneric(dropTarget) {
     interact(dropTarget)
         .dropzone({
             ondrop: function (event) {
@@ -200,7 +200,7 @@ function dropZoneBattlefield(dropTarget) {
                     // If there's a registered callback for this element, invoke it
                     if (relatedId && window.__cardDropCallbacks && window.__cardDropCallbacks[relatedId]) {
                         try {
-                            window.__cardDropCallbacks[relatedId].invokeMethodAsync('NotifyDropped', relatedId);
+                            window.__cardDropCallbacks[relatedId].invokeMethodAsync('NotifyDropped', relatedId, event.target.id);
                         } catch (err) {
                             console.error('Error invoking dotnet callback on drop:', err);
                         }
