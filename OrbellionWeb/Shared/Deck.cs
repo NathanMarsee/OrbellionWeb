@@ -48,7 +48,9 @@ namespace OrbellionWeb.Shared
 
         public Card? Tutor(Guid id)
         {
-            return Cards.FirstOrDefault(c => c.Id == id);
+            Card? card = Cards.FirstOrDefault(c => c.Id == id);
+            Cards = Cards.Where(c => c.Id != id);
+            return card;
         }
     }
 }

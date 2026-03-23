@@ -1,7 +1,7 @@
 ﻿body {
 }
 
-.dropzonetopdeck {
+.topdeck {
     display: flex;
     border: solid;
     box-sizing: border-box;
@@ -10,7 +10,7 @@
     align-items: center
 }
 
-.dropzonebottomdeck {
+.bottomdeck {
     display: flex;
     border: solid;
     box-sizing: border-box;

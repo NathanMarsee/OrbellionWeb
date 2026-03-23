@@ -27,7 +27,7 @@ else
     </div>
 }
 
-<div class="battlefield dropzonebattlefield" style="width: auto; max-width: 80%; height: 800px; position: relative; background-color: lightgray;">
+<div id="battlefield" class="battlefield dropzone" style="width: auto; max-width: 80%; height: 800px; position: relative; background-color: lightgray;">
     @foreach (var card in battlefieldCards)
     {
         <CardVisual @key="card.Id" DisplayedCard="card" CardClass="battlefieldCard card no-select" OnDropped="@OnBattlefieldCardDropped"></CardVisual>
@@ -42,22 +42,22 @@ else
         <div class="row" style="height: 15%; justify-content: center">
             <button @onclick="Draw" style="width: fit-content">D</button>
             <button @onclick="Deck.Shuffle" style="width: fit-content">S</button>
-            <button @onclick="SearchDeck" style="width: fit-content">T</button>
+            <button @onclick="(() => Searching = !Searching)" style="width: fit-content">T</button>
         </div>
         @if (Searching)
         {
             <div style="display: flex; flex-direction: column">
-            @foreach (var card in Deck.Cards)
-            {
-                <button @onclick="(() => Tutor(card.Id))">@card.Name</button>
-            }
+                @foreach (var card in Deck.Cards)
+                {
+                    <button @onclick="(() => Tutor(card.Id))">@card.Name</button>
+                }
             </div>
         }
         else
         {
             <div class="row" style="height: 85%">
-                <div class="dropzonetopdeck" OnDropped="@OnTopDeckCardDropped">Top</div>
-                <div class="dropzonebottomdeck" OnDropped="@OnBottomDeckCardDropped">Bottom</div>
+                <div id="topdeck" class="dropzone topdeck">Top</div>
+                <div id="bottomdeck" class="dropzone bottomdeck">Bottom</div>
             </div>
         }
     </div>
@@ -115,15 +115,9 @@ else
         }
     }
 
-
-    /*private void AddHellion()
+    private async Task OnBattlefieldCardDropped((Guid cardId, string target) t)
     {
-        hellions.Add(new Hellion());
-    }*/
-
-    private async Task OnBattlefieldCardDropped(Guid cardId)
-    {
-        var card = battlefieldCards.FirstOrDefault(c => c.Id == cardId);
+        var card = battlefieldCards.FirstOrDefault(c => c.Id == t.cardId);
         if (card != null)
         {
             battlefieldCards.Remove(card);
@@ -132,39 +126,27 @@ else
         }
     }
 
-    private async Task OnHandCardDropped(Guid cardId)
+    private async Task OnHandCardDropped((Guid cardId, string target) t)
     {
-        var card = handCards.FirstOrDefault(c => c.Id == cardId);
+        var card = handCards.FirstOrDefault(c => c.Id == t.cardId);
         if (card != null)
         {
             handCards.Remove(card);
-            battlefieldCards.Add(card);
-            await InvokeAsync(StateHasChanged);
+
+            switch (t.target)
+            {
+                case "topdeck":
+                    Deck.PutOnTop(card);
+                    break;
+                case "bottomdeck":
+                    Deck.PutOnBottom(card);
+                    break;
+                case "battlefield":
+                    battlefieldCards.Add(card);
+                    break;
+            }
+
         }
-    }
-
-    private void OnTopDeckCardDropped(Guid cardId)
-    {
-        var card = handCards.Concat(battlefieldCards).FirstOrDefault(c => c.Id == cardId);
-        if (card != null)
-        {
-            Deck.PutOnTop(card);
-        }
-
-    }
-
-    private void OnBottomDeckCardDropped(Guid cardId)
-    {
-        var card = handCards.Concat(battlefieldCards).FirstOrDefault(c => c.Id == cardId);
-        if (card != null)
-        {
-            Deck.PutOnBottom(card);
-        }
-    }
-
-    private void SearchDeck()
-    {
-        Searching = !Searching;
     }
 
     private void Tutor(Guid cardId)
