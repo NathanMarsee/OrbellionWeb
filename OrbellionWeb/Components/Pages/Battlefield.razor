@@ -35,7 +35,7 @@ else
     }
     @foreach (var hellion in hellions)
     {
-        <HellionVisual @key="hellion.Id" DisplayedHellion="hellion"></HellionVisual>
+        <HellionVisual @key="hellion.Id" DisplayedHellion="hellion" HellionClass="hellion card draggable"></HellionVisual>
     }
     @foreach (var token in tokens)
     {
