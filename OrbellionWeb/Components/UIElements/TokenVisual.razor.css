@@ -10,11 +10,7 @@ textarea {
     -ms-user-select: none; /* Internet Explorer/Edge */
     user-select: none; /* Standard */
 }
-.battlefieldCard {
-    position: absolute;
-    visibility: hidden;
-}
-.card {
+.token {
     display: grid;
     grid-template-areas:
         "title"
@@ -27,32 +23,26 @@ textarea {
     margin: 0px;
     width: 200px;
     flex-shrink: 0;
+    position: absolute;
 }
 
-.card div {
-    background-color: white;
-}
+    .token div {
+        background-color: white;
+    }
 
-.card div.title textarea {
-    grid-area: title;
-    width: 150px;
-}
+        .token div.title {
+            grid-area: title;
+        }
 
-.card .check {
-    width: 20px;
-    height: 20px;
-}
+        .token div.cardart {
+            grid-area: cardart;
+            gap: 100px;
+        }
 
+        .token div.typeline {
+            grid-area: typeline;
+        }
 
-.card div.cardart {
-    grid-area: cardart;
-    gap: 100px;
-}
-
-.container div.typeline {
-    grid-area: menu;
-}
-
-.container div.text {
-    grid-area: content;
-}
+        .token div.text {
+            grid-area: text;
+        }

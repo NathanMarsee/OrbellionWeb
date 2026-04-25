@@ -6,7 +6,10 @@
 @inject IDbContextFactory<OrbellionWebContext> _contextFactory
 
 <div class="@CardClass" id="@DisplayedCard.Id.ToString()" @ref="cardElement">
-    <div class="title"><textarea type="text" @bind="@DisplayedCard.Name" @bind:after="SaveCard" placeholder="Card Name" rows="1"/></div>
+    <div class="title">
+        <textarea type="text" @bind="@DisplayedCard.Name" @bind:after="SaveCard" placeholder="Card Name" rows="1"/>
+        <input class="check" type="checkbox" @bind="@DisplayedCard.IsAce" @bind:after="SaveCard" />
+        </div> 
     <div class="cardart"><br></div>
     <div class="typeline">
         <InputSelect class="no-drag" @bind-Value="@DisplayedCard.Element" style="border: none;" @bind-Value:after="SaveCard">

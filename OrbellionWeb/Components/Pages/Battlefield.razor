@@ -24,6 +24,7 @@ else
 {
     <div>
         <button class="btn btn-primary" @onclick="AddCard">New Card</button>
+        <button class="btn btn-primary" @onclick="AddToken">New Token</button>
     </div>
 }
 
@@ -34,7 +35,11 @@ else
     }
     @foreach (var hellion in hellions)
     {
-        <HellionVisual @key="hellion.Id" DisplayedHellion="hellion"></HellionVisual>
+        <HellionVisual @key="hellion.Id" DisplayedHellion="hellion" HellionClass="hellion card draggable"></HellionVisual>
+    }
+    @foreach (var token in tokens)
+    {
+        <TokenVisual @key="token.Id" DisplayedToken="token"></TokenVisual>
     }
 </div>
 <div class="lower-section" style="width: auto; max-width: 80%; display: flex;">
@@ -75,6 +80,7 @@ else
     private List<Card> handCards = new List<Card>();
     private Deck Deck = new Deck();
     private List<Hellion> hellions = new List<Hellion>();
+    private List<Token> tokens = new List<Token>();
     private bool inBattle = false;
     private bool Searching = false;
     private bool noSort = false;
@@ -82,6 +88,10 @@ else
     private void AddCard()
     {
         handCards.Add(new Card());
+    }
+    private void AddToken()
+    {
+        tokens.Add(new Token());
     }
 
     private async Task JoinBattleAsync()
@@ -147,7 +157,7 @@ else
                     battlefieldCards.Add(card);
                     break;
             }
-
+            await InvokeAsync(StateHasChanged);
         }
     }
 
