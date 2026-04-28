@@ -63,7 +63,7 @@ else
             </div>
         }
     </div>
-    <div class="hand dropzonehand" style="width: 100%; min-height: 255px; background-color: gray; display: inline-block; overflow-x: auto; white-space: nowrap; padding: 10px;">
+    <div class="hand dropzone dropzonehand" id="hand" style="width: 100%; min-height: 255px; background-color: gray; display: inline-block; overflow-x: auto; white-space: nowrap; padding: 10px;">
         <SortableList Items="handCards" Context="card" OnUpdate="SortList" Filter=".no-drag" ContainerStyle="display:flex; gap:10px; align-items:flex-start;">
             <SortableItemTemplate>
                 <CardVisual @key="card.Id" DisplayedCard="card" CardClass="handCard card no-select" OnDropped="@OnHandCardDropped"></CardVisual>
@@ -130,7 +130,18 @@ else
         if (card != null)
         {
             battlefieldCards.Remove(card);
-            handCards.Add(card);
+            switch (t.target)
+            {
+                case "topdeck":
+                    deck.PutOnTop(card);
+                    break;
+                case "bottomdeck":
+                    deck.PutOnBottom(card);
+                    break;
+                case "hand":
+                    handCards.Add(card);
+                    break;
+            }
             await InvokeAsync(StateHasChanged);
         }
     }
