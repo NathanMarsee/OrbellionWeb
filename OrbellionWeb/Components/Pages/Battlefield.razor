@@ -13,9 +13,6 @@
 
 <PageTitle>Battlefield</PageTitle>
 
-<h1>Cards</h1>
-
-
 @if (!inBattle)
 {
     <button class="btn btn-primary" @onclick="JoinBattleAsync">Join Battle</button>
@@ -46,13 +43,13 @@ else
     <div class="deck" style="width: fit-content; min-width: 200px; min-height: 255px; background-color: darkgray; display: inline-block; white-space: nowrap; padding: 12px;">
         <div class="row" style="height: 15%; justify-content: center">
             <button @onclick="Draw" style="width: fit-content">D</button>
-            <button @onclick="Deck.Shuffle" style="width: fit-content">S</button>
+            <button @onclick="deck.Shuffle" style="width: fit-content">S</button>
             <button @onclick="(() => Searching = !Searching)" style="width: fit-content">T</button>
         </div>
         @if (Searching)
         {
             <div style="display: flex; flex-direction: column">
-                @foreach (var card in Deck.Cards)
+                @foreach (var card in deck.Cards)
                 {
                     <button @onclick="(() => Tutor(card.Id))">@card.Name</button>
                 }
@@ -78,7 +75,7 @@ else
 @code {
     private List<Card> battlefieldCards = new List<Card>();
     private List<Card> handCards = new List<Card>();
-    private Deck Deck = new Deck();
+    private Deck deck = new Deck();
     private List<Hellion> hellions = new List<Hellion>();
     private List<Token> tokens = new List<Token>();
     private bool inBattle = false;
@@ -110,7 +107,8 @@ else
 
             if (currentUser != null)
             {
-                Deck = new Deck(currentUser.Cards);
+                deck = new Deck(currentUser.Cards);
+                hellions = currentUser.Hellions.ToList();
                 inBattle = true;
             }
         }
@@ -119,7 +117,7 @@ else
 
     private void Draw()
     {
-        var card = Deck.Draw();
+        var card = deck.Draw();
         if (card != null)
         {
             handCards.Add(card);
@@ -148,10 +146,10 @@ else
             switch (t.target)
             {
                 case "topdeck":
-                    Deck.PutOnTop(card);
+                    deck.PutOnTop(card);
                     break;
                 case "bottomdeck":
-                    Deck.PutOnBottom(card);
+                    deck.PutOnBottom(card);
                     break;
                 case "battlefield":
                     battlefieldCards.Add(card);
@@ -163,7 +161,7 @@ else
 
     private void Tutor(Guid cardId)
     {
-        var card = Deck.Tutor(cardId);
+        var card = deck.Tutor(cardId);
         if (card != null)
         {
             handCards.Add(card);
