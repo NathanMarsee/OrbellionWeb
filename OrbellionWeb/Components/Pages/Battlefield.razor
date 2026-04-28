@@ -63,7 +63,7 @@ else
             </div>
         }
     </div>
-    <div class="hand dropzone dropzonehand" id="hand" style="width: 100%; min-height: 255px; background-color: gray; display: inline-block; overflow-x: auto; white-space: nowrap; padding: 10px;">
+    <div class="hand dropzone" id="hand" style="width: 100%; min-height: 255px; background-color: gray; display: inline-block; overflow-x: auto; white-space: nowrap; padding: 10px;">
         <SortableList Items="handCards" Context="card" OnUpdate="SortList" Filter=".no-drag" ContainerStyle="display:flex; gap:10px; align-items:flex-start;">
             <SortableItemTemplate>
                 <CardVisual @key="card.Id" DisplayedCard="card" CardClass="handCard card no-select" OnDropped="@OnHandCardDropped"></CardVisual>
@@ -81,10 +81,43 @@ else
     private bool inBattle = false;
     private bool Searching = false;
     private bool noSort = false;
+    private string? userId = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        using var context = _contextFactory.CreateDbContext();
+        {
+            var currentUser = context.Users.Where(u => u.Id == userId)
+                                           .Include(u => u.Cards)
+                                           .Include(u => u.Hellions)
+                                           .Include(u => u.Staples).FirstOrDefault();
+        }
+    }
 
     private void AddCard()
     {
-        handCards.Add(new Card());
+        //handCards.Add(new Card());
+        using var context = _contextFactory.CreateDbContext();
+        {
+            var newCard = new Card { Name = "New Card" };
+            var currentUser = context.Users.Where(u => u.Id == userId).FirstOrDefault();
+
+            if (currentUser != null)
+            {
+                currentUser.Cards.Add(newCard);
+                context.SaveChanges();
+            }
+            else
+            {
+                newCard.Id = Guid.NewGuid();
+            }
+            handCards.Add(newCard);
+        }
     }
     private void AddToken()
     {
