@@ -15,7 +15,7 @@
         </InputSelect>
     </div>
     <div class="text">
-        <textarea type="text" @bind="@DisplayedStaple.Text" placeholder="Staple Text" rows="2" />
+        <textarea type="text" @bind="@DisplayedStaple.Text" @bind:after="SaveStaple" placeholder="Staple Text" rows="2" />
     </div>
 </div>
 

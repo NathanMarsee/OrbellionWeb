@@ -32,7 +32,7 @@ else
     }
     @foreach (var hellion in hellions)
     {
-        <HellionVisual @key="hellion.Id" DisplayedHellion="hellion" HellionClass="hellion card draggable"></HellionVisual>
+        <HellionVisual @key="hellion.Id" DisplayedHellion="hellion" HellionClass="hellion card battlefieldCard draggable"></HellionVisual>
     }
     @foreach (var token in tokens)
     {
@@ -42,9 +42,9 @@ else
 <div class="lower-section" style="width: auto; max-width: 80%; display: flex;">
     <div class="deck" style="width: fit-content; min-width: 200px; min-height: 255px; background-color: darkgray; display: inline-block; white-space: nowrap; padding: 12px;">
         <div class="row" style="height: 15%; justify-content: center">
-            <button @onclick="Draw" style="width: fit-content">D</button>
-            <button @onclick="deck.Shuffle" style="width: fit-content">S</button>
-            <button @onclick="(() => Searching = !Searching)" style="width: fit-content">T</button>
+            <button @onclick="Draw" class="no-drag" style="width: fit-content">D</button>
+            <button @onclick="deck.Shuffle" class="no-drag" style="width: fit-content">S</button>
+            <button @onclick="(() => Searching = !Searching)" class="no-drag" style="width: fit-content">T</button>
         </div>
         @if (Searching)
         {

@@ -20,7 +20,7 @@
         </InputSelect>
     </div>
     <div class="text">
-            <textarea type="text" @bind="@DisplayedHellion.Text" placeholder="Rules Text" rows="3"/>
+        <textarea type="text" @bind="@DisplayedHellion.Text" @bind:after="SaveHellion" placeholder="Rules Text" rows="3" />
     </div>
 </div>
 
