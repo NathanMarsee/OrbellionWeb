@@ -1,0 +1,48 @@
+﻿/* Viewport that fills window width while keeping a 16:9 height */
+.scaled-viewport {
+    width: 100vw;
+    /* keep 16:9 aspect ratio based on width */
+    height: calc(100vw * 9 / 16);
+    overflow: hidden;
+    display: flex;
+    justify-content: left;
+    align-items: flex-start;
+    box-sizing: border-box;
+    padding: 0px;
+    margin: 0px;
+}
+
+/* The inner design canvas (native size before scaling) */
+.scaled-content {
+    width: 1600px; /* design width */
+    height: 900px; /* design height (16:9) */
+    transform-origin: top left;
+    padding: 0px;
+    margin: 0px;
+    /* optional: use a background so you can see the canvas bounds while developing */
+    /* background: #fafafa; */
+}
+
+.sidebar {
+    height: 100%;
+    width: 20px;
+    display: flex;
+}
+
+.topdeck {
+    display: flex;
+    border: solid;
+    box-sizing: border-box;
+    width: 50%;
+    justify-content: center;
+    align-items: center
+}
+
+.bottomdeck {
+    display: flex;
+    border: solid;
+    box-sizing: border-box;
+    width: 50%;
+    justify-content: center;
+    align-items: center
+}
