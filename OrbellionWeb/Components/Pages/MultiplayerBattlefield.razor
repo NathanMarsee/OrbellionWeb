@@ -13,55 +13,29 @@
 @attribute [Authorize]
 
 <PageTitle>Multiplayer Battlefield</PageTitle>
-<div id="sidebar" class="sidebar">hey</div>
-<div id="scaled-viewport" class="scaled-viewport">
-    <div id="scaled-content" class="scaled-content">
-        <div id="battlefield" class="battlefield dropzone" style="width: auto; height: auto; position: relative; background-color: lightgray;">
-            @foreach (var card in battlefieldCards)
-            {
-                <CardVisual @key="card.Id" DisplayedCard="card" CardClass="battlefieldCard card no-select" OnDropped="@OnBattlefieldCardDropped"></CardVisual>
-            }
-            @foreach (var hellion in hellions)
-            {
-                <HellionVisual @key="hellion.Id" DisplayedHellion="hellion" HellionClass="hellion card battlefieldCard draggable"></HellionVisual>
-            }
-            @foreach (var token in tokens)
-            {
-                <TokenVisual @key="token.Id" DisplayedToken="token"></TokenVisual>
-            }
+
+<!-- NEW: container that represents the available area (sidebar + scaled area) -->
+<div id="viewport-container" class="viewport-container">
+    <div id="sidebar" class="sidebar">hey</div>
+
+    <div id="scaled-viewport" class="scaled-viewport">
+        <div id="scaled-content" class="scaled-content">
+            <div id="battlefield" class="battlefield dropzone">
+                @foreach (var card in battlefieldCards)
+                {
+                    <CardVisual @key="card.Id" DisplayedCard="card" CardClass="battlefieldCard card no-select" OnDropped="@OnBattlefieldCardDropped"></CardVisual>
+                }
+                @foreach (var hellion in hellions)
+                {
+                    <HellionVisual @key="hellion.Id" DisplayedHellion="hellion" HellionClass="hellion card battlefieldCard draggable"></HellionVisual>
+                }
+                @foreach (var token in tokens)
+                {
+                    <TokenVisual @key="token.Id" DisplayedToken="token"></TokenVisual>
+                }
+            </div>
+            <!-- rest of your content inside scaled-content unchanged -->
         </div>
-        <!--<div class="lower-section" style="width: auto; display: flex;">
-            <div class="deck" style="width: fit-content; min-width: 200px; min-height: 255px; background-color: darkgray; display: inline-block; white-space: nowrap; padding: 12px;">
-                <div class="row" style="height: 15%; justify-content: center">
-                    <button @onclick="Draw" class="no-drag" style="width: fit-content">D</button>
-                    <button @onclick="deck.Shuffle" class="no-drag" style="width: fit-content">S</button>
-                    <button @onclick="(() => Searching = !Searching)" class="no-drag" style="width: fit-content">T</button>
-                </div>
-                @if (Searching)
-                {
-                    //<div style="display: flex; flex-direction: column">
-                        @foreach (var card in deck.Cards)
-                        {
-                            //<button @onclick="(() => Tutor(card.Id))">@card.Name</button>
-                        }
-                    //</div>
-                }
-                else
-                {
-                    //<div class="row" style="height: 85%">
-                        //<div id="topdeck" class="dropzone topdeck">Top</div>
-                        //<div id="bottomdeck" class="dropzone bottomdeck">Bottom</div>
-                    //</div>
-                }
-            </div>
-            <div class="hand dropzone" id="hand" style="width: 100%; min-height: 255px; background-color: gray; display: inline-block; overflow-x: auto; white-space: nowrap; padding: 10px;">
-                <SortableList Items="handCards" Context="card" OnUpdate="SortList" Filter=".no-drag" ContainerStyle="display:flex; gap:10px; align-items:flex-start;">
-                    <SortableItemTemplate>
-                        <CardVisual @key="card.Id" DisplayedCard="card" CardClass="handCard card no-select" OnDropped="@OnHandCardDropped"></CardVisual>
-                    </SortableItemTemplate>
-                </SortableList>
-            </div>
-        </div>-->
     </div>
 </div>
 
@@ -103,7 +77,9 @@
             // design canvas size (16:9). Adjust if you want a different "native" resolution.
             const int designWidth = 1600;
             const int designHeight = 900;
-            await JS.InvokeVoidAsync("scaleTo16by9", "scaled-content", designWidth, designHeight);
+
+            // Measure the actual remaining area (the scaled-viewport) so sidebar space is excluded.
+            await JS.InvokeVoidAsync("scaleToFit", "scaled-content", designWidth, designHeight, "scaled-viewport");
             _scaleInitialized = true;
         }
     }
@@ -112,7 +88,7 @@
     {
         if (_scaleInitialized)
         {
-            await JS.InvokeVoidAsync("scaleTo16by9Dispose", "scaled-content");
+            await JS.InvokeVoidAsync("scaleToFitDispose", "scaled-content");
         }
     }
 

@@ -1,48 +1,47 @@
-﻿/* Viewport that fills window width while keeping a 16:9 height */
-.scaled-viewport {
-    width: 100vw;
-    /* keep 16:9 aspect ratio based on width */
-    height: calc(100vw * 9 / 16);
-    overflow: hidden;
+﻿/* viewport container: sidebar + scaled area */
+.viewport-container {
     display: flex;
-    justify-content: left;
-    align-items: flex-start;
+    width: 100vw;
+    height: 100vh; /* fill viewport height */
     box-sizing: border-box;
-    padding: 0px;
-    margin: 0px;
+    align-items: stretch;
+    padding: 0;
+    margin: 0;
 }
 
-/* The inner design canvas (native size before scaling) */
+/* fixed-width sidebar on the left (adjust as needed) */
+.sidebar {
+    width: 100px; /* fixed sidebar width */
+    flex: 0 0 100px;
+    background: #111;
+    color: #fff;
+    box-sizing: border-box;
+    padding: 8px;
+}
+
+.battlefield {
+    width: 1600px; /* match design width */
+    height: 900px; /* match design height */
+    box-sizing: border-box;
+    background-color: lightgray;
+}
+
+/* scaled-viewport consumes remaining space and places scaled content at top-left */
+.scaled-viewport {
+    flex: 1 1 auto;
+    display: flex;
+    justify-content: flex-start; /* align to left so scaled-content fills remaining width */
+    align-items: flex-start;     /* align to top so content uses full height available */
+    overflow: hidden;
+    box-sizing: border-box;
+    position: relative;
+}
+
+/* your design canvas native size before scaling (transform will be applied) */
 .scaled-content {
     width: 1600px; /* design width */
-    height: 900px; /* design height (16:9) */
-    transform-origin: top left;
-    padding: 0px;
-    margin: 0px;
-    /* optional: use a background so you can see the canvas bounds while developing */
-    /* background: #fafafa; */
-}
-
-.sidebar {
-    height: 100%;
-    width: 20px;
-    display: flex;
-}
-
-.topdeck {
-    display: flex;
-    border: solid;
-    box-sizing: border-box;
-    width: 50%;
-    justify-content: center;
-    align-items: center
-}
-
-.bottomdeck {
-    display: flex;
-    border: solid;
-    box-sizing: border-box;
-    width: 50%;
-    justify-content: center;
-    align-items: center
+    height: 900px; /* design height */
+    transform-origin: top left; /* anchor scaling to top-left of available area */
+    margin: 0;
+    will-change: transform;
 }
