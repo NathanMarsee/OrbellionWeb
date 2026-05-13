@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.ResponseCompression;
+using OrbellionWeb.Hubs;
 using OrbellionWeb.Components.Account;
 using OrbellionWeb.Data;
 
@@ -36,7 +38,25 @@ builder.Services.AddIdentityCore<OrbellionWebUser>(options =>
     .AddSignInManager()
     .AddDefaultTokenProviders();
 
+builder.Services.AddSignalR();
+
+builder.Services.AddResponseCompression(opts =>
+{
+    opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
+        ["application/octet-stream"]);
+});
+
 var app = builder.Build();
+
+app.UseHttpsRedirection();
+
+app.UseBlazorFrameworkFiles();
+
+app.UseStaticFiles();
+
+
+app.UseResponseCompression();
+app.MapHub<ChatHub>("/chathub");
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

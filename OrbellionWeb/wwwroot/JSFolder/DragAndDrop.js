@@ -5,6 +5,29 @@ function clamp(v, a, b) {
     return Math.min(Math.max(v, a), b);
 }
 
+// Find the effective scale for an element by looking for the nearest .scaled-content ancestor.
+// Returns 1 if no scale found or on error.
+function getEffectiveScale(el) {
+    try {
+        let ancestor = el;
+        while (ancestor) {
+            if (ancestor.classList && ancestor.classList.contains('scaled-content')) break;
+            ancestor = ancestor.parentElement;
+        }
+        if (!ancestor) return 1;
+        const rect = ancestor.getBoundingClientRect();
+        // layout (untransformed) width
+        const layoutWidth = ancestor.offsetWidth || rect.width;
+        if (!layoutWidth) return 1;
+        const scale = rect.width / layoutWidth;
+        if (!isFinite(scale) || scale <= 0) return 1;
+        return scale;
+    } catch (e) {
+        console.error('getEffectiveScale error', e);
+        return 1;
+    }
+}
+
 function dragAndDropBattlefield(className) {
     // global counter to ensure the most-recently-clicked item is on top
     window.__cardDragZIndex = window.__cardDragZIndex || 1000;
@@ -32,13 +55,15 @@ function dragAndDropBattlefield(className) {
                 }
             },
             move(event) {
-                let x = (parseFloat(event.target.dataset.x) || 0) + event.dx;
-                let y = (parseFloat(event.target.dataset.y) || 0) + event.dy;
+                // compensate for parent scale so visual movement matches cursor
+                const scale = getEffectiveScale(event.target) || 1;
+                let dx = (parseFloat(event.target.dataset.x) || 0) + (event.dx / scale);
+                let dy = (parseFloat(event.target.dataset.y) || 0) + (event.dy / scale);
 
-                event.target.style.transform = `translate(${x}px, ${y}px)`;
+                event.target.style.transform = `translate(${dx}px, ${dy}px)`;
 
-                event.target.dataset.x = x;
-                event.target.dataset.y = y;
+                event.target.dataset.x = dx;
+                event.target.dataset.y = dy;
             },
             // snap back into the .main area on drag end if any edge is hanging outside,
             // but skip snapping if the element was dropped into a dropzone (to avoid flicker)
@@ -54,36 +79,41 @@ function dragAndDropBattlefield(className) {
                 const battlefield = document.querySelector('.battlefield');
                 if (!battlefield || !el) return;
 
-                // current stored translation
+                // current stored translation (in element coordinates)
                 let x = parseFloat(el.dataset.x) || 0;
                 let y = parseFloat(el.dataset.y) || 0;
 
                 const elRect = el.getBoundingClientRect();
                 const battlefieldRect = battlefield.getBoundingClientRect();
 
-                // compute required deltas to bring the element fully inside main
-                let dx = 0;
-                let dy = 0;
+                // compute required deltas in client pixels to bring the element fully inside battlefield
+                let dxClient = 0;
+                let dyClient = 0;
 
                 if (elRect.left < battlefieldRect.left) {
-                    dx = battlefieldRect.left - elRect.left;
+                    dxClient = battlefieldRect.left - elRect.left;
                 }
                 if (elRect.right > battlefieldRect.right) {
-                    dx = battlefieldRect.right - elRect.right;
+                    dxClient = battlefieldRect.right - elRect.right;
                 }
                 if (elRect.top < battlefieldRect.top) {
-                    dy = battlefieldRect.top - elRect.top;
+                    dyClient = battlefieldRect.top - elRect.top;
                 }
                 if (elRect.bottom > battlefieldRect.bottom) {
-                    dy = battlefieldRect.bottom - elRect.bottom;
+                    dyClient = battlefieldRect.bottom - elRect.bottom;
                 }
 
                 // if any adjustment required, update translation instantly (no animation)
-                if (dx !== 0 || dy !== 0) {
+                if (dxClient !== 0 || dyClient !== 0) {
+                    const scale = getEffectiveScale(el) || 1;
+                    // convert client-pixel correction to element coordinates (divide by scale)
+                    const dxElem = dxClient / scale;
+                    const dyElem = dyClient / scale;
+
                     // ensure no transition so the move is immediate
                     el.style.transition = 'none';
-                    x += dx;
-                    y += dy;
+                    x += dxElem;
+                    y += dyElem;
                     el.style.transform = `translate(${x}px, ${y}px)`;
                     el.dataset.x = x;
                     el.dataset.y = y;
@@ -252,18 +282,23 @@ window.tryApplyDropPosition = function (el, id) {
         const container = el.parentElement || document.body;
         const containerRect = container.getBoundingClientRect();
 
-        // center the element under the cursor
-        let desiredLeft = clientX - containerRect.left - (el.offsetWidth / 2);
-        let desiredTop = clientY - containerRect.top - (el.offsetHeight / 2);
+        // center the element under the cursor (client pixels)
+        let desiredLeftClient = clientX - containerRect.left - (el.offsetWidth / 2);
+        let desiredTopClient = clientY - containerRect.top - (el.offsetHeight / 2);
 
-        // clamp to ensure the element fully fits within the container bounds
-        const minLeft = 0;
-        const maxLeft = Math.max(0, containerRect.width - el.offsetWidth);
-        const minTop = 0;
-        const maxTop = Math.max(0, containerRect.height - el.offsetHeight);
+        // clamp in client pixels
+        const minLeftClient = 0;
+        const maxLeftClient = Math.max(0, containerRect.width - el.offsetWidth);
+        const minTopClient = 0;
+        const maxTopClient = Math.max(0, containerRect.height - el.offsetHeight);
 
-        desiredLeft = clamp(desiredLeft, minLeft, maxLeft);
-        desiredTop = clamp(desiredTop, minTop, maxTop);
+        desiredLeftClient = clamp(desiredLeftClient, minLeftClient, maxLeftClient);
+        desiredTopClient = clamp(desiredTopClient, minTopClient, maxTopClient);
+
+        // convert client-pixel coords into element coordinates by dividing by effective scale
+        const scale = getEffectiveScale(el) || 1;
+        const desiredLeft = desiredLeftClient / scale;
+        const desiredTop = desiredTopClient / scale;
 
         // ensure the element has a dataset for future dragging
         el.dataset.x = desiredLeft;

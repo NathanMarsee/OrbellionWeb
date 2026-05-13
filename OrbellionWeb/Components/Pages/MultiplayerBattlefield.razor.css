@@ -21,7 +21,13 @@
 
 .battlefield {
     width: 1600px; /* match design width */
-    height: 900px; /* match design height */
+    height: 700px; /* match design height */
+    box-sizing: border-box;
+    background-color: lightgray;
+}
+.lower-section {
+    width: 1600px; /* match design width */
+    height: 200px; /* match design height */
     box-sizing: border-box;
     background-color: lightgray;
 }
