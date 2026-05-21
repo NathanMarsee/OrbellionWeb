@@ -4,7 +4,7 @@
 @using OrbellionWeb.Shared
 @inject IDbContextFactory<OrbellionWebContext> _contextFactory
 
-<div class="staple">
+<div class="staple card">
     <div class="title"><textarea type="text" @bind="@DisplayedStaple.Name" @bind:after="SaveStaple" placeholder="Staple Name" rows="1" /></div>
     <div class="typeline">
         <InputSelect class="no-drag" @bind-Value="@DisplayedStaple.Element" @bind-Value:after="SaveStaple" style="border: none;">
@@ -15,7 +15,7 @@
         </InputSelect>
     </div>
     <div class="text">
-        <textarea type="text" @bind="@DisplayedStaple.Text" placeholder="Staple Text" rows="2" />
+        <textarea type="text" @bind="@DisplayedStaple.Text" @bind:after="SaveStaple" placeholder="Staple Text" rows="2" />
     </div>
 </div>
 

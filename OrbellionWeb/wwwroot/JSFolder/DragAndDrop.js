@@ -118,7 +118,16 @@ function dragAndDropHand(className) {
     });
 }
 
-function dropZoneHand(dropTarget) {
+// Single simple dropzone function.
+//
+// Behavior:
+// - Accepts any element that has the "card" class.
+// - If the dragged card is being dropped into the same logical zone it came from
+//   (determined by matching any dragged-class ending in "Card" to a target class/id/
+///  'dropzone' + base), the drop is ignored.
+// - Otherwise it marks the element as dropped, stores pointer coords for Blazor,
+//   and invokes any registered DotNet callback (NotifyDropped).
+function dropZone(dropTarget) {
     interact(dropTarget)
         .dropzone({
             ondrop: function (event) {
@@ -160,59 +169,44 @@ function dropZoneHand(dropTarget) {
                         alert(relatedEl.id + ' was dropped into ' + event.target.id);
                     }
                 }
-            }
-        })
-        .on('dropactivate', function (event) {
-            event.target.classList.add('drop-activated')
-        })
-}
-function dropZoneGeneric(dropTarget) {
-    interact(dropTarget)
-        .dropzone({
-            ondrop: function (event) {
-                const relatedEl = event.relatedTarget;
-                if (relatedEl.classList.contains("handCard")) {
-                    // Mark the dragged element as dropped into a dropzone so draggable end listener can skip snap.
-                    // Use a short-lived flag; Blazor/DOTNET removal will happen immediately in many cases.
-                    if (relatedEl) {
-                        relatedEl.__cardDroppedIntoZone = true;
-                        // Clear the flag shortly after to avoid stale state if element isn't removed
-                        setTimeout(() => {
-                            if (relatedEl && relatedEl.__cardDroppedIntoZone) {
-                                delete relatedEl.__cardDroppedIntoZone;
-                            }
-                        }, 500);
-                    }
 
-                    // capture the drop pointer coordinates (try multiple event shapes)
-                    const dragEvent = event.dragEvent || {};
-                    const client = dragEvent.client || {};
-                    const clientX = (client.x !== undefined) ? client.x : (dragEvent.clientX !== undefined ? dragEvent.clientX : (event.clientX || 0));
-                    const clientY = (client.y !== undefined) ? client.y : (dragEvent.clientY !== undefined ? dragEvent.clientY : (event.clientY || 0));
-
-                    const relatedId = relatedEl && relatedEl.id;
-                    // store coordinates for the card id so newly-rendered component can pick them up
-                    if (relatedId) {
-                        window.__cardDropLocations = window.__cardDropLocations || {};
-                        window.__cardDropLocations[relatedId] = { clientX: clientX, clientY: clientY, time: Date.now() };
+                // mark the dragged element as dropped into a dropzone so draggable end listener can skip snap.
+                relatedEl.__cardDroppedIntoZone = true;
+                // Clear the flag shortly after to avoid stale state if element isn't removed
+                setTimeout(() => {
+                    if (relatedEl && relatedEl.__cardDroppedIntoZone) {
+                        delete relatedEl.__cardDroppedIntoZone;
                     }
+                }, 500);
 
-                    // If there's a registered callback for this element, invoke it
-                    if (relatedId && window.__cardDropCallbacks && window.__cardDropCallbacks[relatedId]) {
-                        try {
-                            window.__cardDropCallbacks[relatedId].invokeMethodAsync('NotifyDropped', relatedId, event.target.id);
-                        } catch (err) {
-                            console.error('Error invoking dotnet callback on drop:', err);
-                        }
-                    } else if (relatedEl) {
-                        alert(relatedEl.id + ' was dropped into ' + event.target.id);
+                // capture the drop pointer coordinates (try multiple event shapes)
+                const dragEvent = event.dragEvent || {};
+                const client = dragEvent.client || {};
+                const clientX = (client.x !== undefined) ? client.x : (dragEvent.clientX !== undefined ? dragEvent.clientX : (event.clientX || 0));
+                const clientY = (client.y !== undefined) ? client.y : (dragEvent.clientY !== undefined ? dragEvent.clientY : (event.clientY || 0));
+
+                const relatedId = relatedEl && relatedEl.id;
+                // store coordinates for the card id so newly-rendered component can pick them up
+                if (relatedId) {
+                    window.__cardDropLocations = window.__cardDropLocations || {};
+                    window.__cardDropLocations[relatedId] = { clientX: clientX, clientY: clientY, time: Date.now() };
+                }
+
+                // If there's a registered callback for this element, invoke it
+                if (relatedId && window.__cardDropCallbacks && window.__cardDropCallbacks[relatedId]) {
+                    try {
+                        window.__cardDropCallbacks[relatedId].invokeMethodAsync('NotifyDropped', relatedId, target.id);
+                    } catch (err) {
+                        console.error('Error invoking dotnet callback on drop:', err);
                     }
+                } else if (relatedEl) {
+                    alert(relatedEl.id + ' was dropped into ' + target.id);
                 }
             }
         })
         .on('dropactivate', function (event) {
-            event.target.classList.add('drop-activated')
-        })
+            event.target.classList.add('drop-activated');
+        });
 }
 
 // register a DotNet callback for a specific card element

@@ -10,44 +10,67 @@
 
 <PageTitle>Home</PageTitle>
 
-<AuthorizeView>
-    <Authorized>
-        <h1>Hello @characterName, and welcome to Orbellion.</h1>
-        <InputText @bind-Value="@newCharacterName" placeholder="New Character Name"/>
-        <button @onclick="UpdateCharacterName">Update Character Name</button>
-    </Authorized>
-    <NotAuthorized>
-        <h1>Hello, and welcome to Orbellion.</h1>
-        <p>
-            Please <a href="Account/Login">log in</a> to access your character and the battlefield.
-        </p>
-    </NotAuthorized>
-</AuthorizeView>
-<div>Here you can edit Hellions/Staples/Deck for your character if you are logged in, otherwise anything done here will not be persisted.</div>
-<h1>Hellions</h1>
-<div class="row">
-    @foreach (var hellion in hellions)
-    {
-        <HellionVisual @key="hellion.Id" DisplayedHellion="hellion"/>
-    }
+<div class="sidebar">
+    <NavMenu />
 </div>
-<h1>Staples</h1>
-<button @onclick="AddStaple">Add Staple</button>
-<div style="font-style: italic">(You can increase your number of staples through character advancements when leveling up. The maximum is 5)</div>
-<div class="row">
-    @foreach (var staple in staples)
-    {
-        <StapleVisual @key="staple.Id" DisplayedStaple="staple" StapleClass="staple"/>
-    }
-</div>
-<h1>Deck</h1>
-<button @onclick="NewCard">New Card</button>
-<div class="row scrollable-row">
-    @foreach (var card in cards)
-    {
-        <CardVisual @key="card.Id" DisplayedCard="card" CardClass="card"/>
-    }
-</div>
+
+<main>
+    <AuthorizeView>
+        <Authorized>
+            <form class="top-row px-4" method="post" action="/Account/Logout" enctype="multipart/form-data">
+                <AntiforgeryToken />
+                <input type="hidden" name="returnUrl" value="" />
+                <button type="submit" class="nav-link btn btn-link">Logout</button>
+            </form>
+        </Authorized>
+        <NotAuthorized>
+            <a class="top-row px-4" href="Account/Login">Login</a>
+        </NotAuthorized>
+    </AuthorizeView>
+
+    <article class="content px-4">
+        <AuthorizeView>
+            <Authorized>
+                <h1>Hello @characterName, and welcome to Orbellion.</h1>
+                <InputText @bind-Value="@newCharacterName" placeholder="New Character Name" />
+                <button @onclick="UpdateCharacterName">Update Character Name</button>
+            </Authorized>
+            <NotAuthorized>
+                <h1>Hello, and welcome to Orbellion.</h1>
+                <p>
+                    Please <a href="Account/Login">log in</a> to access your character and the battlefield.
+                </p>
+            </NotAuthorized>
+        </AuthorizeView>
+        <div>Here you can edit Hellions/Staples/Deck for your character if you are logged in, otherwise anything done here will not be persisted.</div>
+        <h1>Hellions</h1>
+        <div class="row">
+            @foreach (var hellion in hellions)
+            {
+                <HellionVisual @key="hellion.Id" DisplayedHellion="hellion" />
+            }
+        </div>
+        <h1>Staples</h1>
+        <button @onclick="AddStaple">Add Staple</button>
+        <div style="font-style: italic">(You can increase your number of staples through character advancements when leveling up. The maximum is 5)</div>
+        <div class="row">
+            @foreach (var staple in staples)
+            {
+                <StapleVisual @key="staple.Id" DisplayedStaple="staple" StapleClass="staple" />
+            }
+        </div>
+        <h1>Deck</h1>
+        <button @onclick="NewCard">New Card</button>
+        <div class="row scrollable-row">
+            @foreach (var card in cards)
+            {
+                <CardVisual @key="card.Id" DisplayedCard="card" CardClass="card" />
+            }
+        </div>
+    </article>
+</main>
+
+
 @code 
 {
     private string? userId = string.Empty;

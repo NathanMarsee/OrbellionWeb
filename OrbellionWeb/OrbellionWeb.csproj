@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <None Include="wwwroot\JSFolder\DragAndDrop.js" />
+	<None Include="wwwroot\JSFolder\ScaleToFit.js" />
   </ItemGroup>
 
   <ItemGroup>
