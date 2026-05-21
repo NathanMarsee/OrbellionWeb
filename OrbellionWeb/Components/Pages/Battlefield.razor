@@ -184,22 +184,29 @@ else
         var card = handCards.FirstOrDefault(c => c.Id == t.cardId);
         if (card != null)
         {
+            await InvokeAsync(() =>
             noSort = true;
             handCards.Remove(card);
 
             switch (t.target)
             {
-                case "topdeck":
-                    deck.PutOnTop(card);
-                    break;
-                case "bottomdeck":
-                    deck.PutOnBottom(card);
-                    break;
-                case "battlefield":
-                    battlefieldCards.Add(card);
-                    break;
-            }
-            await InvokeAsync(StateHasChanged);
+                handCards.Remove(card);
+
+                switch (t.target)
+                {
+                    case "topdeck":
+                        Deck.PutOnTop(card);
+                        break;
+                    case "bottomdeck":
+                        Deck.PutOnBottom(card);
+                        break;
+                    case "battlefield":
+                        battlefieldCards.Add(card);
+                        break;
+                }
+
+                StateHasChanged();
+            });
         }
     }
 
