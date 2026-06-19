@@ -1,0 +1,71 @@
+﻿<!-- using Microsoft.EntityFrameworkCore -->
+<!-- using OrbellionWeb.Data -->
+@using OrbellionWeb.Shared
+@using OrbellionWeb.Models
+<!-- inject IDbContextFactory<OrbellionWebContext> _contextFactory -->
+@using Microsoft.JSInterop
+@inject IJSRuntime JS;
+
+<div class="@HellionClass" id="@DisplayedHellion.Id.ToString()" @ref="hellionElement">
+    <div class="title">
+        <textarea class="name" type="text" @bind="@DisplayedHellion.Name" @bind:after="SaveHellion" placeholder="Hellion Name" rows="1" />    
+            <input class="check" type="checkbox" @bind="@DisplayedHellion.IsDefeated" />
+    </div>
+    <div class="art"><br></div>
+    <div class="element">
+        <InputSelect @bind-Value="@DisplayedHellion.Element" @bind-Value:after="SaveHellion" style="border: none;">
+            @foreach (var value in Enum.GetValues(typeof(Element)))
+            {
+                <option value="@value">@value</option>
+            }
+        </InputSelect>
+    </div>
+    <div class="text">
+        <textarea type="text" @bind="@DisplayedHellion.Text" @bind:after="SaveHellion" placeholder="Rules Text" rows="3" />
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public Hellion DisplayedHellion { get; set; } = new Hellion();
+
+    [Parameter]
+    public string HellionClass { get; set; } = "hellion card";
+
+    private ElementReference hellionElement;
+    private DotNetObjectReference<HellionVisual>? dotNetRef;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // ensure drag behavior is wired (ok to call multiple times)
+        await JS.InvokeVoidAsync("dragAndDropBattlefield", ".draggable");
+
+        // register this instance with JS so drops call back here
+        dotNetRef ??= DotNetObjectReference.Create(this);
+        await JS.InvokeVoidAsync("registerDropHandler", hellionElement, dotNetRef);
+
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("bringElementToFront", hellionElement);
+        }
+    }
+
+    private void SaveHellion()
+    {
+        //look at rewriting this in the DbContext class
+        if (DisplayedHellion.IsDirty)
+        {
+            /*using var context = _contextFactory.CreateDbContext();
+            {
+                var hellion = context.Users.Include(u => u.Hellions).SelectMany(u => u.Hellions).FirstOrDefault(h => h.Id == DisplayedHellion.Id);
+                if (hellion != null)
+                {
+                    hellion.Name = DisplayedHellion.Name;
+                    hellion.Element = DisplayedHellion.Element;
+                    hellion.Text = DisplayedHellion.Text;
+                }
+                context.SaveChanges();
+            }*/
+        }
+    }
+}

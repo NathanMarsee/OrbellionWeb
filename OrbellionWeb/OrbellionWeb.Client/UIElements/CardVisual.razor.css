@@ -1,0 +1,58 @@
+﻿body {
+}
+textarea {
+    resize: none;
+    border: none;
+}
+.no-select {
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Standard */
+}
+.battlefieldCard {
+    position: absolute;
+    visibility: visible;
+}
+.card {
+    display: grid;
+    grid-template-areas:
+        "title"
+        "cardart"
+        "typeline"
+        "text";
+    grid-template-columns: 1fr;
+    background-color: black;
+    padding: 10px;
+    margin: 0px;
+    width: 200px;
+    flex-shrink: 0;
+}
+
+.card div {
+    background-color: white;
+}
+
+.card div.title textarea {
+    grid-area: title;
+    width: 150px;
+}
+
+.card .check {
+    width: 20px;
+    height: 20px;
+}
+
+
+.card div.cardart {
+    grid-area: cardart;
+    gap: 100px;
+}
+
+.container div.typeline {
+    grid-area: menu;
+}
+
+.container div.text {
+    grid-area: content;
+}

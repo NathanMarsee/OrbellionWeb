@@ -1,0 +1,54 @@
+﻿/* viewport container: sidebar + scaled area */
+.viewport-container {
+    display: flex;
+    width: 100vw;
+    height: 100vh; /* fill viewport height */
+    box-sizing: border-box;
+    align-items: stretch;
+    padding: 0;
+    margin: 0;
+}
+
+/* fixed-width sidebar on the left (adjust as needed) */
+.sidebar {
+    width: 100px; /* fixed sidebar width */
+    flex: 0 0 100px;
+    background: #111;
+    color: #fff;
+    box-sizing: border-box;
+    padding: 8px;
+}
+
+.battlefield {
+    width: 1600px; /* match design width */
+    height: 700px; /* match design height */
+    box-sizing: border-box;
+    background-color: lightgray;
+}
+
+.lower-section {
+    width: 1600px; /* match design width */
+    height: 200px; /* match design height */
+    box-sizing: border-box;
+    background-color: lightgray;
+}
+
+/* scaled-viewport consumes remaining space and places scaled content at top-left */
+.scaled-viewport {
+    flex: 1 1 auto;
+    display: flex;
+    justify-content: flex-start; /* align to left so scaled-content fills remaining width */
+    align-items: flex-start; /* align to top so content uses full height available */
+    overflow: hidden;
+    box-sizing: border-box;
+    position: relative;
+}
+
+/* your design canvas native size before scaling (transform will be applied) */
+.scaled-content {
+    width: 1600px; /* design width */
+    height: 900px; /* design height */
+    transform-origin: top left; /* anchor scaling to top-left of available area */
+    margin: 0;
+    will-change: transform;
+}

@@ -1,0 +1,226 @@
+﻿@page "/multiplayerbattlefield"
+<!-- using Microsoft.AspNetCore.Authorization -->
+<!-- using Microsoft.EntityFrameworkCore -->
+@using OrbellionWeb.Client.UIElements
+<!-- using OrbellionWeb.Data -->
+@using OrbellionWeb.Models
+@using OrbellionWeb.Shared
+<!-- using System.Security.Claims -->
+@rendermode InteractiveWebAssembly
+<!-- inject IDbContextFactory<OrbellionWebContext> _contextFactory -->
+<!-- inject AuthenticationStateProvider _authenticationStateProvider -->
+@inject IJSRuntime JS
+<!-- attribute [Authorize] -->
+
+<PageTitle>Multiplayer Battlefield</PageTitle>
+
+<!-- NEW: container that represents the available area (sidebar + scaled area) -->
+<div id="viewport-container" class="viewport-container">
+    <div id="sidebar" class="sidebar">hey</div>
+
+    <div id="scaled-viewport" class="scaled-viewport">
+        <div id="scaled-content" class="scaled-content">
+            <div id="battlefield" class="battlefield dropzone">
+                @foreach (var card in battlefieldCards)
+                {
+                    <CardVisual @key="card.Id" DisplayedCard="card" CardClass="battlefieldCard card no-select" OnDropped="@OnBattlefieldCardDropped"></CardVisual>
+                }
+                @foreach (var hellion in hellions)
+                {
+                    <HellionVisual @key="hellion.Id" DisplayedHellion="hellion" HellionClass="hellion card battlefieldCard draggable"></HellionVisual>
+                }
+                @foreach (var token in tokens)
+                {
+                    <TokenVisual @key="token.Id" DisplayedToken="token"></TokenVisual>
+                }
+            </div>
+            <!-- rest of your content inside scaled-content unchanged -->
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<Card> battlefieldCards = new List<Card>();
+    private List<Card> handCards = new List<Card>();
+    private Deck deck = new Deck();
+    private List<Hellion> hellions = new List<Hellion>();
+    private List<Token> tokens = new List<Token>();
+    private bool inBattle = false;
+    private bool Searching = false;
+    private bool noSort = false;
+    private string? userId = string.Empty;
+
+    // scale script init flag
+    private bool _scaleInitialized;
+
+    protected override async Task OnInitializedAsync()
+    {
+        //var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+        //var user = authState.User;
+
+        //userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        /*using var context = _contextFactory.CreateDbContext();
+        {
+            var currentUser = context.Users.Where(u => u.Id == userId)
+                                           .Include(u => u.Cards)
+                                           .Include(u => u.Hellions)
+                                           .Include(u => u.Staples).FirstOrDefault();
+        }*/
+        /*var newCard = new Card { Name = "New Card" };
+        newCard.Id = Guid.NewGuid();
+        battlefieldCards.Add(newCard);*/
+        await JoinBattleAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // design canvas size (16:9). Adjust if you want a different "native" resolution.
+            const int designWidth = 1600;
+            const int designHeight = 900;
+
+            // Measure the actual remaining area (the scaled-viewport) so sidebar space is excluded.
+            await JS.InvokeVoidAsync("scaleToFit", "scaled-content", designWidth, designHeight, "scaled-viewport");
+            _scaleInitialized = true;
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_scaleInitialized)
+        {
+            await JS.InvokeVoidAsync("scaleToFitDispose", "scaled-content");
+        }
+    }
+
+    private void AddCard()
+    {
+        //handCards.Add(new Card());
+        /*using var context = _contextFactory.CreateDbContext();
+        {
+            var newCard = new Card { Name = "New Card" };
+            var currentUser = context.Users.Where(u => u.Id == userId).FirstOrDefault();
+
+            if (currentUser != null)
+            {
+                currentUser.Cards.Add(newCard);
+                context.SaveChanges();
+            }
+            else
+            {
+                newCard.Id = Guid.NewGuid();
+            }
+            handCards.Add(newCard);
+        }*/
+    }
+    private void AddToken()
+    {
+        tokens.Add(new Token());
+    }
+
+    private async Task JoinBattleAsync()
+    {
+        //var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+        //var user = authState.User;
+
+        //var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        /*using var context = _contextFactory.CreateDbContext();
+        {
+            var currentUser = context.Users.Where(u => u.Id == userId)
+                                           .Include(u => u.Cards)
+                                           .Include(u => u.Hellions)
+                                           .Include(u => u.Staples).FirstOrDefault();
+
+            if (currentUser != null)
+            {
+                deck = new Deck(currentUser.Cards);
+                hellions = currentUser.Hellions.ToList();
+                inBattle = true;
+            }
+        }*/
+        battlefieldCards.Add(new Card());
+    }
+
+    private void Draw()
+    {
+        var card = deck.Draw();
+        if (card != null)
+        {
+            handCards.Add(card);
+        }
+    }
+
+    private async Task OnBattlefieldCardDropped((Guid cardId, string target) t)
+    {
+        var card = battlefieldCards.FirstOrDefault(c => c.Id == t.cardId);
+        if (card != null)
+        {
+            battlefieldCards.Remove(card);
+            switch (t.target)
+            {
+                case "topdeck":
+                    deck.PutOnTop(card);
+                    break;
+                case "bottomdeck":
+                    deck.PutOnBottom(card);
+                    break;
+                case "hand":
+                    handCards.Add(card);
+                    break;
+            }
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task OnHandCardDropped((Guid cardId, string target) t)
+    {
+        var card = handCards.FirstOrDefault(c => c.Id == t.cardId);
+        if (card != null)
+        {
+            noSort = true;
+            handCards.Remove(card);
+
+            switch (t.target)
+            {
+                case "topdeck":
+                    deck.PutOnTop(card);
+                    break;
+                case "bottomdeck":
+                    deck.PutOnBottom(card);
+                    break;
+                case "battlefield":
+                    battlefieldCards.Add(card);
+                    break;
+            }
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void Tutor(Guid cardId)
+    {
+        var card = deck.Tutor(cardId);
+        if (card != null)
+        {
+            handCards.Add(card);
+            Searching = false;
+        }
+    }
+
+    private async Task SortList((int oldIndex, int newIndex) args)
+    {
+        if(!noSort)
+        {
+            var card = handCards[args.oldIndex];
+            handCards.RemoveAt(args.oldIndex);
+            handCards.Insert(args.newIndex, card);
+            await InvokeAsync(StateHasChanged);
+        }
+        else
+        {
+            noSort = false;
+        }
+    }
+}

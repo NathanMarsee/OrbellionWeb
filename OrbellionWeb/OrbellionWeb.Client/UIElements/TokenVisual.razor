@@ -1,0 +1,61 @@
+﻿@using OrbellionWeb.Shared
+@using OrbellionWeb.Models
+@using Microsoft.JSInterop
+@inject IJSRuntime JS;
+
+<div class="token card" id="@DisplayedToken.Id.ToString()" @ref="tokenElement">
+    <div class="title"><textarea type="text" @bind="@DisplayedToken.Name" placeholder="Token Name" rows="1"/></div>
+    <div class="cardart"><br></div>
+    <div class="typeline">
+        <InputSelect @bind-Value="@DisplayedToken.Element" style="border: none;">
+            @foreach (var value in Enum.GetValues(typeof(Element)))
+            {
+                <option value="@value">@value</option>
+            }
+        </InputSelect> Token 
+        <InputSelect class="no-drag" @bind-Value="@DisplayedToken.Type" style="border: none;">
+            @foreach (var value in Enum.GetValues(typeof(CardType)))
+            {
+                <option value="@value">@value</option>
+            }
+        </InputSelect><br>
+        
+    </div>
+    <div class="text">
+        @if (DisplayedToken.Type == CardType.Move || DisplayedToken.Type == CardType.Item)
+        {
+            <InputSelect class="no-drag" @bind-Value="@DisplayedToken.Power" style="border: none; font-weight: 700;">
+                @foreach (var value in Enum.GetValues(typeof(Power)))
+                {
+                    <option value="@value">@value</option>
+                }
+            </InputSelect>
+            <br>
+            <textarea type="text" @bind="@DisplayedToken.Text" placeholder="Card Text" rows="4" />
+        }
+        else {
+            <textarea type="text" @bind="@DisplayedToken.Text" placeholder="Card Text" rows="5" />
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public Token DisplayedToken { get; set; } = new Token();
+
+    private ElementReference tokenElement;
+    private DotNetObjectReference<TokenVisual>? dotNetRef;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // ensure drag behavior is wired (ok to call multiple times)
+        await JS.InvokeVoidAsync("dragAndDropBattlefield", ".token");
+
+        await JS.InvokeVoidAsync("registerDropHandler", tokenElement, dotNetRef);
+
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("bringElementToFront", tokenElement);
+        }
+    }
+}
